@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # codemap.sh — a structured index of the codebase so the agent navigates
-# instead of re-reading every file. Caches to .claude/cache/codemap.md.
+# instead of re-reading every file. Caches to .opencode/cache/codemap.md.
 #
 # Usage: codemap.sh [--summary] [--refresh]
 #   --summary  counts per language + the heaviest files (the briefing view)
@@ -60,7 +60,7 @@ build_summary() {
   printf '%s\n' "$rows" | sort -t"$(printf '\t')" -k2,2nr | head -5 \
     | awk -F'\t' '{printf "- `%s` — %s loc (%s)\n",$5,$2,$1}'
   echo
-  echo "_Drill in: \`.claude/tools/codemap.sh\` (full table) or \`rg <symbol> \$(.claude/tools/codemap.sh | …)\`._"
+  echo "_Drill in: \`.opencode/tools/codemap.sh\` (full table) or \`rg <symbol> \$(.opencode/tools/codemap.sh | …)\`._"
 }
 
 case "$MODE" in

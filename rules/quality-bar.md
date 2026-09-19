@@ -7,7 +7,7 @@ alwaysApply: true
 
 Per-language linters and formatters live in `rules/refactor-<tech>.md` under
 "After refactoring". This rule adds the layers that apply to EVERY language and
-names the one command that runs them all: `.claude/tools/quality.sh`.
+names the one command that runs them all: `.opencode/tools/quality.sh`.
 
 ## The bar
 
@@ -35,7 +35,7 @@ names the one command that runs them all: `.claude/tools/quality.sh`.
 
 ## Done means green
 
-- `.claude/tools/quality.sh` exits 0 with every relevant gate run — the static half
+- `.opencode/tools/quality.sh` exits 0 with every relevant gate run — the static half
   of "done". The dynamic half is tests in the project's framework
   (`rules/test-frameworks.md`, `agents/builder.md`).
 - Manual security reasoning (`agents/security.md`) complements SAST — neither

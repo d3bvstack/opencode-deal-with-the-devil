@@ -8,7 +8,7 @@ tools: Read, Write, Bash, Grep
 
 # API Endpoint
 
-DO NOT add a route before reading the nearest existing handler and `.claude/rules/api-convention.md`.
+DO NOT add a route before reading the nearest existing handler and `.opencode/rules/api-convention.md`.
 
 ## 1. Locate
 
@@ -27,7 +27,7 @@ DO NOT add a route before reading the nearest existing handler and `.claude/rule
 
 ## 4. Verify
 
-- Run the relevant check through the project's task runner (detect it with `.claude/tools/facts.sh`).
+- Run the relevant check through the project's task runner (detect it with `.opencode/tools/facts.sh`).
 - Regenerate SDKs if the spec changed.
 - Add a verify gate (a `scripts/verify/` check or CI job) that exercises the route.
 

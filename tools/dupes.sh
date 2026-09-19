@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # dupes.sh — repeated code blocks across the tree. These are the extraction
 # candidates: pull each into the project library, test once, reuse everywhere
-# (see rules/library-first.md). Caches to .claude/cache/dupes.md.
+# (see rules/library-first.md). Caches to .opencode/cache/dupes.md.
 #
 # Ponytail: sliding-window of WINDOW normalized lines, hashed and counted. It
 # finds copy-paste, not semantic clones. Tune WINDOW for sensitivity.
@@ -69,7 +69,7 @@ build_summary() {
   if [ "$n" -eq 0 ]; then echo "- no repeated blocks found"; return 0; fi
   echo "- $n repeated block(s) — extraction candidates for the project library"
   printf '%s\n' "$blocks" | head -5 | awk -F'\t' '{printf "- ×%s `%s` — %s\n",$1,$2,substr($3,1,48)}'
-  echo "- full list: \`.claude/tools/dupes.sh\`"
+  echo "- full list: \`.opencode/tools/dupes.sh\`"
 }
 
 case "$MODE" in

@@ -10,11 +10,11 @@ The idea is simple: look before guessing, write a test before the code, think tw
 
 ## Why this exists
 
-Claude is great at writing code quickly. The trouble is that a quick, confident answer to a question you haven't fully thought through is often wrong in a way that looks right.
+Opencode is great at writing code quickly. The trouble is that a quick, confident answer to a question you haven't fully thought through is often wrong in a way that looks right.
 
 This config pushes back on that. It nudges the reasoning into the open and asks for evidence before action. In practice it fixes four habits:
 
-- **Guessing instead of looking.** Small scripts pre-read the repo so Claude works from a summary, not a fresh re-read every time.
+- **Guessing instead of looking.** Small scripts pre-read the repo so Opencode works from a summary, not a fresh re-read every time.
 - **Rushing risky decisions.** The `devil` reviews a plan and says go or stop *before* any code gets written.
 - **Reinventing things.** A "reuse first" habit and a duplicate-finder keep the code from sprawling.
 - **"Looks done."** A strict, multi-tool check is the only thing allowed to call work finished.
@@ -48,7 +48,7 @@ Reach for the smallest one that fits.
 | **Commands**  | `commands/*.md`          | One focused action                          | you type `/<name> <args>`            |
 | **Skills**    | `skills/<name>/SKILL.md` | A capability that triggers on intent        | a trigger phrase, or by name         |
 | **Workflows** | `workflows/*.md`         | Multi-step playbooks                        | `/workflow:<name> <args>`            |
-| **Tools**     | `tools/*.sh`             | Scripts: digesters, the quality gate, etc.  | Claude runs `.claude/tools/<name>.sh`|
+| **Tools**     | `tools/*.sh`             | Scripts: digesters, the quality gate, etc. | Opencode runs `.opencode/tools/<name>.sh` |
 | **Agents**    | `agents/*.md`            | Specialist personas you delegate to         | by name, trigger, or from a workflow |
 
 Rough guide: something that must always hold is a **rule**; a one-shot is a **command**; a capability that fires on intent is a **skill**; a gated multi-step procedure is a **workflow**; a recurring parse or check is a **tool**; a distinct perspective is an **agent**. Multi-agent details live in [`AGENTS.md`](AGENTS.md).
@@ -57,7 +57,7 @@ Rough guide: something that must always hold is a **rule**; a one-shot is a **co
 
 ## Tools
 
-These are small bash scripts that read the repo for you, so Claude runs one command and gets structured facts instead of re-reading everything each session. Output is cached in `.claude/cache/` and tied to git state, so a stale cache rebuilds itself. Plain bash and coreutils, with `rg`/`jq` used when they're around. Full list: [`tools/README.md`](tools/README.md).
+These are small bash scripts that read the repo for you, so Opencode runs one command and gets structured facts instead of re-reading everything each session. Output is cached in `.opencode/cache/` and tied to git state, so a stale cache rebuilds itself. Plain bash and coreutils, with `rg`/`jq` used when they're around. Full list: [`tools/README.md`](tools/README.md).
 
 | Tool           | Answers                                                                 |
 | -------------- | ---------------------------------------------------------------------- |
@@ -71,9 +71,9 @@ These are small bash scripts that read the repo for you, so Claude runs one comm
 | `watch.sh`     | "Run this without letting it hang" — timeouts around any command       |
 
 ```sh
-.claude/tools/digest.sh                          # brief yourself first (cached)
-.claude/tools/quality.sh --with-tests            # the strict gate; exit 1 means a real failure
-.claude/tools/watch.sh --idle 60 -- make build   # never wait forever on a stuck process
+.opencode/tools/digest.sh                          # brief yourself first (cached)
+.opencode/tools/quality.sh --with-tests            # the strict gate; exit 1 means a real failure
+.opencode/tools/watch.sh --idle 60 -- make build   # never wait forever on a stuck process
 ```
 
 ---
@@ -125,8 +125,8 @@ Language-specific rules load when you touch that language: `refactor-{c,go,rust,
 ## Quick start
 
 1. Copy these files into your project's `.claude/` directory — this repo *is* that directory's contents. Keep `settings.json` as valid JSON.
-2. Run `.claude/tools/digest.sh` to see the stack, toolchain, test framework, untested files, and duplication at a glance.
-3. Describe a feature and let Claude run the arc: `/prompt` → `/deal` (if risky) → `builder` → `/quality`.
+2. Run `.opencode/tools/digest.sh` to see the stack, toolchain, test framework, untested files, and duplication at a glance.
+3. Describe a feature and let Opencode run the arc: `/prompt` → `/deal` (if risky) → `builder` → `/quality`.
 4. Land it behind your verification gate, green at the strict `quality-bar`.
 
 Everyday handles: `/prompt <request>`, `/deal <plan>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/workflow:feature <desc>`, `/workflow:harden <module>`.
@@ -151,7 +151,7 @@ These hold for everything here, even one-off tasks:
 ## Repository layout
 
 ```
-.claude/
+.opencode/
 ├── README.md          this file
 ├── AGENTS.md          multi-agent discipline
 ├── agents/*.md        specialist personas (builder, forger, innovator, devil, …)
@@ -174,7 +174,7 @@ When you add something, match the existing examples: `commands/refactor.md`, `ru
 - **Commands** — frontmatter with one `description:` ending in `Usage: /<name> <args>`; the body opens with `<Label>: $ARGUMENTS` and uses phased `## Workflow` sections; abort if a required file is missing.
 - **Skills** — a directory `skills/<name>/` with exactly `SKILL.md`. The directory name matches the frontmatter `name` (lowercase-hyphenated). Frontmatter has `name`, a `description:` ending in `Auto-triggers on: "phrase", "phrase"`, and a minimal `tools:`. The last phase is always `Report`.
 - **Workflows** — frontmatter `description:` ending in `Usage: /workflow:<name> <args>`; numbered phases; one clear human gate before any behavior change; a final `## Report`. Workflows reference skills and commands by name rather than re-explaining them.
-- **Tools** — executable bash, thin glue over `lib/common.sh`, one concern each. Support `--summary` and `--refresh`, emit markdown, cache to `.claude/cache/`, and exit non-zero on failure. Conventions are in [`tools/README.md`](tools/README.md); the `forger` builds these.
+- **Tools** — executable bash, thin glue over `lib/common.sh`, one concern each. Support `--summary` and `--refresh`, emit markdown, cache to `.opencode/cache/`, and exit non-zero on failure. Conventions are in [`tools/README.md`](tools/README.md); the `forger` builds these.
 - **Agents** — frontmatter with `name`, a `description:` with triggers, `tools:`, and an optional `model:`. The body is a persona, its principles, what it does and doesn't do, and an output format.
 
 Keep one source of truth per concept and reference it instead of repeating it.

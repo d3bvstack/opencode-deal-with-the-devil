@@ -6,8 +6,8 @@ Technology: $ARGUMENTS
 
 Read and apply ALL of the following before touching any code:
 
-1. .claude/rules/refactor-common.md (always)
-2. .claude/rules/refactor-<technology>.md (for the specified tech)
+1. .opencode/rules/refactor-common.md (always)
+2. .opencode/rules/refactor-<technology>.md (for the specified tech)
 
 If the technology file doesn't exist, stop and say so.
 

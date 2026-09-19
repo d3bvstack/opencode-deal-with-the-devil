@@ -11,7 +11,7 @@ done-when a test can check. If $ARGUMENTS is empty, ask for the request and stop
 
 ### Phase 1 — Ground
 
-- Run `.claude/tools/digest.sh` for the real toolchain, codemap, untested list, and
+- Run `.opencode/tools/digest.sh` for the real toolchain, codemap, untested list, and
   duplication candidates. Don't guess the stack — read it.
 - If digest reports no source (not a code repo), say so and proceed with what's known.
 

@@ -180,7 +180,8 @@ read the file).
 ### 3.5 `rules/` — durable constraints (`.opencode/rules/`, applied on every task)
 
 `alwaysApply`: `prompt-contract`, `library-first`, `quality-bar`, `risk`, `refactor-common`,
-`run-safely`, `dsa-and-memory`, `test-frameworks`. Scoped: `api-convention` (routes/handlers/API),
+`run-safely`, `dsa-and-memory`, `test-frameworks`, `minimalism-ladder`, `minimalism-markers`.
+Scoped: `api-convention` (routes/handlers/API),
 `refactor-go` (`**/*.go`), `refactor-shell` (`**/*.sh`).
 
 ## 4. Where things live

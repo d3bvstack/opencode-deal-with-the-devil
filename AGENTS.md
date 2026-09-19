@@ -165,6 +165,7 @@ read the file).
 | --- | --- |
 | `api-endpoint` | "add an endpoint", "new API route", "expose this over HTTP", "wire a handler" |
 | `write-test` | "write tests for", "add test coverage", "this needs tests" |
+| `debug` | "debug", "why is this failing", "what's wrong", "trace this", "root cause" |
 
 ### 3.4 `workflows/` — reusable procedures (invoked `/workflow:<name>`)
 

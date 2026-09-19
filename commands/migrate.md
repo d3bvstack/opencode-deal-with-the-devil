@@ -4,8 +4,8 @@ description: Run or inspect the project's migrations across backends. Usage: /mi
 
 Action: $ARGUMENTS
 
-Drive the migration lifecycle through the project's task runner (detect it with `.claude/tools/facts.sh`,
-run it under `.claude/tools/watch.sh`). Do NOT hand-edit migrations here — to
+Drive the migration lifecycle through the project's task runner (detect it with `.opencode/tools/facts.sh`,
+run it under `.opencode/tools/watch.sh`). Do NOT hand-edit migrations here — to
 AUTHOR a new migration use `/workflow:migrate-db`.
 
 ## Workflow

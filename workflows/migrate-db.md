@@ -22,7 +22,7 @@ Change: $ARGUMENTS
 
 ## 3. Apply
 
-- Run the project's migrate command (detect it with `.claude/tools/facts.sh`, run it under `.claude/tools/watch.sh`).
+- Run the project's migrate command (detect it with `.opencode/tools/facts.sh`, run it under `.opencode/tools/watch.sh`).
 - Confirm it applied via the project's migrate-status command.
 
 ## 4. Gate

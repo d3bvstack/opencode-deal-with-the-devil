@@ -5,7 +5,7 @@ description: Run comparative benchmarks (the project vs the reference baseline) 
 Scope: $ARGUMENTS
 
 Run the canonical benchmark for the given scope on the current branch through the project's task runner
-(detect it with `.claude/tools/facts.sh`, run it under `.claude/tools/watch.sh`).
+(detect it with `.opencode/tools/facts.sh`, run it under `.opencode/tools/watch.sh`).
 
 ## Workflow
 

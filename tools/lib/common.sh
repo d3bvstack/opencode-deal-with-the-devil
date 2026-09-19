@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# common.sh — shared helpers for .claude/tools/*.
+# common.sh — shared helpers for .opencode/tools/*.
 # Source it; never execute it. This is the project library for the tools:
 # every tool stays thin glue over these functions (see rules/library-first.md).
 
@@ -14,10 +14,10 @@ have() { command -v "$1" >/dev/null 2>&1; }
 # Root of the repo being analyzed: CWD's git toplevel, else CWD.
 repo_root() { git rev-parse --show-toplevel 2>/dev/null || pwd; }
 
-# Directory holding the tools (.claude/tools), resolved from this file.
+# Directory holding the tools (.opencode/tools), resolved from this file.
 _tools_dir() { cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd; }
 
-# Cache lives at .claude/cache — next to the tools, so it survives any CWD.
+# Cache lives at .opencode/cache — next to the tools, so it survives any CWD.
 cache_dir() {
   local d; d="$(_tools_dir)/../cache"
   mkdir -p "$d"

@@ -10,7 +10,7 @@ tools: Read, Write, Bash
 
 ## 0. Detect the framework
 
-- Run `.claude/tools/facts.sh` — it reports the detected test framework. Write in
+- Run `.opencode/tools/facts.sh` — it reports the detected test framework. Write in
   THAT framework, in its idiom (see `rules/test-frameworks.md`). Don't introduce a
   second framework; don't hand-roll asserts/mocks it already ships.
 - None configured? Pick the canonical default for the stack and say why in one line.

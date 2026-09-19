@@ -23,15 +23,15 @@ conclusions, not raw trees.
 ## The loop
 
 ### 0. Brief — tools parse, you don't
-- Run `.claude/tools/digest.sh` first. It is your situational awareness: toolchain
+- Run `.opencode/tools/digest.sh` first. It is your situational awareness: toolchain
   facts, the codemap, the untested worklist, duplication candidates.
 - Read-by-query after that (`rg`, `jq`, the cached `codemap`). Never hand-read the
   whole tree to answer what a tool already digested.
 
 ### 0.5 Preflight — verify before you build
-- Run `.claude/tools/preflight.sh`. Missing `.env`, secrets, or credentials fail
+- Run `.opencode/tools/preflight.sh`. Missing `.env`, secrets, or credentials fail
   here, not ten minutes into a build. Never compile or run with config unset.
-- Run every build/test/install/long command through `.claude/tools/watch.sh` — a
+- Run every build/test/install/long command through `.opencode/tools/watch.sh` — a
   hung process is killed with a reason (exit 124), never waited on forever (`run-safely`).
 
 ### 1. Contract — sharpen before you touch code
@@ -46,7 +46,7 @@ conclusions, not raw trees.
   Reuse what exists; search with `rg` and the codemap first.
 - Missing a primitive? Build it IN the library, test it there, then consume it.
   Features are thin glue over tested primitives — never copy-paste.
-- Every `.claude/tools/dupes.sh` candidate is an extraction. Act on it.
+- Every `.opencode/tools/dupes.sh` candidate is an extraction. Act on it.
 
 ### 3. TDD — red, green, refactor
 - RED: write the failing test first. Run it. SEE it fail for the right reason.
@@ -56,7 +56,7 @@ conclusions, not raw trees.
   data structure is a design decision, not an afterthought.
 
 ### 4. Gate — strict, measured, green
-- Run `.claude/tools/quality.sh`. Every relevant gate green at the strictest flags
+- Run `.opencode/tools/quality.sh`. Every relevant gate green at the strictest flags
   (`rules/quality-bar.md`). A skipped gate is uncovered surface — name it.
 - Hot path touched? Cite a number, not an adjective (`benchmarker` discipline).
 

@@ -10,14 +10,14 @@ and waiting forever on a stuck process. Both are preventable. Both have a tool.
 
 ## Verify before you build
 
-- Run `.claude/tools/preflight.sh` before any compile / build / run. Missing `.env`,
+- Run `.opencode/tools/preflight.sh` before any compile / build / run. Missing `.env`,
   secrets, or credentials fail fast and clearly — not ten minutes into a build.
 - Config is checked, never assumed. A required var that's unset is a blocker, not a warning.
 - Never print secret values — names and set/unset only (preflight already redacts).
 
 ## Never wait forever
 
-- Wrap every build, test, install, migration, or deploy in `.claude/tools/watch.sh`.
+- Wrap every build, test, install, migration, or deploy in `.opencode/tools/watch.sh`.
   It enforces a hard timeout AND an idle timeout, so a hang is detected and killed —
   the agent moves on with a clear reason; it does not stall the session.
 - A watchdog kill (exit 124) is a fact to act on: the command hung or overran. Diagnose

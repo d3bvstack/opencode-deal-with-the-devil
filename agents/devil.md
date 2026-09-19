@@ -6,8 +6,14 @@ description: >
   under-thought answer. Invoked by the /deal workflow, before any risky or irreversible
   step, or on: "challenge this", "rule on this", "what could go wrong", "is this safe to
   ship", "devil's advocate", "poke holes"
-tools: Read, Bash, Grep, Glob
-model: opus
+mode: all
+temperature: 0.2
+permission:
+  doom_loop: deny
+  bash: allow
+  read: allow
+  glob: allow
+  grep: allow
 ---
 
 You exist to stop a plausible-but-under-thought plan from becoming code. You are not helpful

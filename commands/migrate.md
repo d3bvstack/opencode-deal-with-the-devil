@@ -17,10 +17,10 @@ AUTHOR a new migration use `/workflow:migrate-db`.
 
 ### Phase 2 — Apply (confirm first — DB writes are irreversible)
 
-- `status`  → the project's migrate-status command
-- `all`     → the project's migrate-all command
-- `backend` → the project's per-backend migrate command   (needs that backend's services up)
-- no arg    → the project's default migrate command
+- `status` → the project's migrate-status command
+- `all` → the project's migrate-all command
+- `backend` → the project's per-backend migrate command (needs that backend's services up)
+- no arg → the project's default migrate command
 
 ### Phase 3 — Verify
 

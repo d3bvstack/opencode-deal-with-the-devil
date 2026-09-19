@@ -160,8 +160,7 @@ These hold for everything here, even one-off tasks:
 ├── skills/<n>/SKILL.md  capabilities that trigger on intent (debug, write-test, …)
 ├── workflows/*.md     multi-phase playbooks (/workflow:deal, feature, harden, …)
 ├── tools/*.sh         the scripts (digest, quality, watch, …) + lib/common.sh
-├── settings.json      committed config (permissions / env / hooks)
-└── assets/            the mascot
+└── settings.json      committed config (permissions / env / hooks)
 ```
 
 ---

@@ -24,15 +24,15 @@ This config pushes back on that. It nudges the reasoning into the open and asks 
 ## How a task flows
 
 ```
-/prompt          →   /deal           →   builder              →   /quality
-write a spec         the devil          test-first, reuse        run the strict gate
-                     decides go/stop    red → green → refactor
+/prompt          →   /workflow:deal   →   builder              →   /quality
+write a spec         the devil            test-first, reuse        run the strict gate
+                     decides go/stop      red → green → refactor
 ```
 
 1. **`/prompt`** turns a vague request into a clear spec, with a "done when" that a test can actually verify.
-2. **`/deal`** sends risky plans to the `devil`, which weighs how much could break, how easily it's undone, and how confident the plan really is — then says BLOCK or PROCEED. Small, reversible work skips this.
+2. **`/workflow:deal`** sends risky plans to the `devil`, which weighs how much could break, how easily it's undone, and how confident the plan really is — then says BLOCK or PROCEED. Small, reversible work skips this.
 3. **`builder`** does the work: build the reusable piece first, write the failing test, write the minimum code to pass, then clean up. Every step gets run and checked.
-4. **`/quality`** runs the full gate (formatting, lint, types, security scan, dependency audit, accessibility). Green, with tests passing, is what "done" means.
+4. **`/quality`** runs the full gate (formatting, lint, types, security scan, dependency audit, plus tests when you pass `--with-tests`). Green is what "done" means.
 
 Two habits run through all of it: back claims with a command and its output (or a `file:line`), and never leave a half-finished tree behind — it's green or it's reverted.
 
@@ -118,18 +118,18 @@ Some rules are always on and shape every task:
 - **`minimalism-ladder`** and **`minimalism-markers`** — the ladder: YAGNI → stdlib → platform → existing dep → one-liner → minimum, with a performance override on hot paths.
 - **`refactor-common`** — the shared structure, naming, error-handling, and testing basics.
 
-Language-specific rules load when you touch that language: `refactor-{c,go,rust,typescript,shell}` and `api-convention`. `/refactor <tech>` reads `rules/refactor-<tech>.md` directly.
+Language-specific rules load when you touch that language: `refactor-go`, `refactor-shell`, and `api-convention`. `/refactor <tech>` reads `rules/refactor-<tech>.md` directly.
 
 ---
 
 ## Quick start
 
-1. Copy these files into your project's `.opencode/` directory — this repo _is_ that directory's contents. Keep `settings.json` as valid JSON.
+1. Copy these files into your project's `.opencode/` directory — this repo _is_ that directory's contents. If you add a `settings.json`, keep it valid JSON.
 2. Run `.opencode/tools/digest.sh` to see the stack, toolchain, test framework, untested files, and duplication at a glance.
-3. Describe a feature and let Opencode run the arc: `/prompt` → `/deal` (if risky) → `builder` → `/quality`.
+3. Describe a feature and let Opencode run the arc: `/prompt` → `/workflow:deal` (if risky) → `builder` → `/quality`.
 4. Land it behind your verification gate, green at the strict `quality-bar`.
 
-Everyday handles: `/prompt <request>`, `/deal <plan>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/workflow:feature <desc>`, `/workflow:harden <module>`.
+Everyday handles: `/prompt <request>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/bench <load|capacity|footprint|mem|startup>`, `/compat <feature-area>`, `/migrate <status|all|backend>`, `/workflow:deal <plan>`, `/workflow:ship <major|minor|patch>`.
 
 ---
 
@@ -157,17 +157,17 @@ These hold for everything here, even one-off tasks:
 ├── agents/*.md        specialist personas (builder, forger, innovator, devil, …)
 ├── rules/*.md         always-on and tech-scoped constraints
 ├── commands/*.md      single-shot actions (/prompt, /quality, /refactor, …)
-├── skills/<n>/SKILL.md  capabilities that trigger on intent (debug, write-test, …)
-├── workflows/*.md     multi-phase playbooks (/workflow:deal, feature, harden, …)
+├── skills/<n>/SKILL.md  capabilities that trigger on intent (debug, write-test, api-endpoint, …)
+├── workflows/*.md     multi-phase playbooks (/workflow:deal, migrate-db, ship, …)
 ├── tools/*.sh         the scripts (digest, quality, watch, …) + lib/common.sh
-└── settings.json      committed config (permissions / env / hooks)
+└── settings.json      optional committed config (permissions / env / hooks)
 ```
 
 ---
 
 ## Extending it
 
-When you add something, match the existing examples: `commands/refactor.md`, `rules/refactor-common.md`, `skills/debug/SKILL.md`, `workflows/harden.md`, `tools/quality.sh`. Keep the voice short and direct, use real numbers, and skip filler words like "simply" or "just".
+When you add something, match the existing examples: `commands/refactor.md`, `rules/refactor-common.md`, `skills/debug/SKILL.md`, `workflows/deal.md`, `tools/quality.sh`. Keep the voice short and direct, use real numbers, and skip filler words like "simply" or "just".
 
 - **Rules** — YAML frontmatter, then a `#` title and `##` sections. Two shapes, never mixed: universal (`description` + `alwaysApply: true`, no globs) or tech-scoped (`globs: ["**/*.ext"]` + `description`). Note: `/refactor <tech>` reads `rules/refactor-<tech>.md` by exact name, so spell the filename carefully.
 - **Commands** — frontmatter with one `description:` ending in `Usage: /<name> <args>`; the body opens with `<Label>: $ARGUMENTS` and uses phased `## Workflow` sections; abort if a required file is missing.
@@ -180,5 +180,5 @@ Keep one source of truth per concept and reference it instead of repeating it.
 
 ## Settings
 
-- `settings.json` — committed, repo-wide config (permissions, env, hooks). Must be valid JSON; even `{}` is fine, but an empty file won't parse.
+- `settings.json` — optional, repo-wide config (permissions, env, hooks); the harness works fine without it. If you add one, it must be valid JSON — `{}` is fine, but an empty file won't parse.
 - `settings.local.json` — machine-local toggles like `disabledMcpjsonServers`, not shared.

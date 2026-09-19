@@ -6,16 +6,16 @@ the "read-by-query" discipline (`AGENTS.md`) made executable.
 
 ## The tools
 
-| Tool | Answers | Reads |
-|---|---|---|
-| `digest.sh` | "What am I working with?" — the start-of-task briefing | composes the summaries below |
-| `facts.sh` | "How do I build/test/lint? Which gates and test frameworks exist?" | manifests, toolchain |
-| `preflight.sh` | "Is the environment ready?" — `.env` / secrets / toolchain before building | manifests, `.env.example` |
-| `codemap.sh` | "Where does X live? What's heavy? What's untested?" | every source file |
-| `untested.sh` | "What needs a test before I touch it?" (the TDD worklist) | source vs tests |
-| `dupes.sh` | "What should I extract into the library?" | repeated blocks |
-| `quality.sh` | "Is it the highest quality — strictly?" (the gate) | every strict linter / SAST / audit |
-| `watch.sh` | "Run this without ever hanging" — hard + idle timeouts around any command | wraps a command |
+| Tool           | Answers                                                                    | Reads                              |
+| -------------- | -------------------------------------------------------------------------- | ---------------------------------- |
+| `digest.sh`    | "What am I working with?" — the start-of-task briefing                     | composes the summaries below       |
+| `facts.sh`     | "How do I build/test/lint? Which gates and test frameworks exist?"         | manifests, toolchain               |
+| `preflight.sh` | "Is the environment ready?" — `.env` / secrets / toolchain before building | manifests, `.env.example`          |
+| `codemap.sh`   | "Where does X live? What's heavy? What's untested?"                        | every source file                  |
+| `untested.sh`  | "What needs a test before I touch it?" (the TDD worklist)                  | source vs tests                    |
+| `dupes.sh`     | "What should I extract into the library?"                                  | repeated blocks                    |
+| `quality.sh`   | "Is it the highest quality — strictly?" (the gate)                         | every strict linter / SAST / audit |
+| `watch.sh`     | "Run this without ever hanging" — hard + idle timeouts around any command  | wraps a command                    |
 
 ## Use
 

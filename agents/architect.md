@@ -5,8 +5,13 @@ description: >
   dependencies, data flow, or system design. Triggers on:
   "should I split this", "where should this live",
   "how should I structure", "design decision"
-tools: Read, Grep, Glob
-model: opus
+mode: all
+temperature: 0.2
+permission:
+  doom_loop: deny
+  read: allow
+  glob: allow
+  grep: allow
 ---
 
 You are a systems architect. You think in boundaries,

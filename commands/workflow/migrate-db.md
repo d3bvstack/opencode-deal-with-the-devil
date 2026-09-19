@@ -4,32 +4,26 @@ description: >
   Usage: /workflow:migrate-db <what the migration does>
 ---
 
-# Migrate DB
+[WORKFLOW: DB_MIGRATION]
+TARGET: Change $ARGUMENTS
 
-Change: $ARGUMENTS
+1. DESIGN:
+- Next sequential `NNN` in migrations dir (follow project numbering; respect gaps).
+- Identify target backends/adapters.
+- Cloud/enterprise tables default OFF via `(master_flag ∧ sub_flag)` pattern.
 
-## 1. Design
+2. AUTHOR:
+- Format: `NNN_<slug>` — forward-only, idempotent (`IF NOT EXISTS`, guarded).
+- Adapter-agnostic: Single-backend breakage ≡ incomplete.
+- APPROVAL_GATE: Present migration; await explicit approval before applying.
 
-- Pick the next sequential number in the project's migrations directory (follow the existing numbering; respect any gaps).
-- Decide which backends/adapters the change touches.
-- If it backs a cloud/enterprise feature, the table is OFF by default (master + sub-flag AND pattern).
+3. APPLY:
+- Detect migrate runner via `.opencode/tools/facts.sh`; execute under `.opencode/tools/watch.sh`.
+- Confirm application via project migrate-status command.
 
-## 2. Author
+4. GATE:
+- Add/extend gate (`scripts/verify/` or CI) actively exercising new schema.
+- Anti-vacuity: Vacuous passes strictly invalid.
 
-- `NNN_<slug>` migration — forward-only, idempotent (`IF NOT EXISTS`, guarded).
-- Adapter-agnostic intent: a change that works on one backend but breaks the others is not done.
-- **Present the migration. Wait for approval.**
-
-## 3. Apply
-
-- Run the project's migrate command (detect it with `.opencode/tools/facts.sh`, run it under `.opencode/tools/watch.sh`).
-- Confirm it applied via the project's migrate-status command.
-
-## 4. Gate
-
-- Add or extend a verify gate (a `scripts/verify/` check or CI job) that exercises the new schema.
-- A gate that passes vacuously is not a gate.
-
-## 5. Report
-
-Output: `docs/migrations/db-<date>.md` — the migration number, backends touched, the flag (if any), and the gate that proves it.
+5. REPORT (`docs/migrations/db-<date>.md`):
+- Log: migration number, backends touched, feature flag (if any), proving gate.

@@ -3,42 +3,36 @@ description: Detect and use the project's test framework; don't reinvent it. Ref
 alwaysApply: true
 ---
 
-# Test frameworks — detect, then use the right one
+[RULES: TEST_FRAMEWORK_MANDATE]
+ASSERT: PASS := framework_runner.exec() == 0. Hand-rolled test infrastructure FORBIDDEN.
 
-A test proves something only when it runs in the project's real framework and runner.
-Don't hand-roll what `gtest`, `pytest`, or `vitest` already do. Build and verify WITH
-the framework — "passing" means its runner reports pass.
+OPERATIONAL_RULES:
+1. DETECT_FIRST: Execute `.opencode/tools/facts.sh` || inspect repo manifest. Match framework AND existing style.
+2. CARDINALITY: MAX 1 framework per language per repo. FORBID suite fragmentation.
+3. ANTI_REINVENTION: FORBID custom assertions/mocks/runners. REQUIRE native fixtures/matchers/parameterization.
+4. UNCONFIGURED_STACK: Select CANONICAL_DEFAULT (marked *). EMIT: 1-line justification.
+5. CI_PARITY: Tests MUST run via project test command (`facts.sh`), not local-only.
 
-## Discipline
+AGENT_INTEGRATION:
+- `agents/builder.md`: Implements tests in detected framework during TDD RED phase.
+- `write-test`: Generates framework-idiomatic coverage.
+- PARSER_GATE: input_parser == TRUE -> REQUIRE property-based tests for "done" state (`quality-bar.md`).
 
-- **Detect first.** Run `.opencode/tools/facts.sh` (it reports the detected framework)
-  or read the manifest. Match the framework AND the existing test style.
-- **One framework per language per repo.** If one is configured, use it. A second one
-  fragments the suite — don't add it.
-- **Don't reinvent.** Never hand-roll an assertion, mock, or runner the framework ships.
-  Use its fixtures, matchers, and parameterization.
-- **None yet?** Pick the canonical default for the stack (first column below) — the
-  lowest-friction standard one — and say why in one line.
-- **It must run in CI** via the project's test command (`facts.sh`), not only locally.
+STACK_MATRIX (ORDER: [Canonical_Default*, Alternatives]):
+| Lang | Unit / Runner* | Property-Based | Mock | E2E / Integration | Bench |
+|---|---|---|---|---|---|
+| C | Unity*, Criterion, CMocka, Check | theft | CMocka, FFF | — | custom + `clock_gettime` |
+| C++ | GoogleTest(+GoogleMock)*, Catch2, doctest | rapidcheck | GoogleMock, trompeloeil | — | Google Benchmark, nanobench |
+| Go | testing(stdlib, table-driven)* + testify | testing/quick, rapid, gopter | gomock(`go.uber.org/mock`), testify/mock | httptest, testcontainers-go | testing.B + benchstat |
+| Rust | cargo test(+rstest)* | proptest, quickcheck | mockall | tests/ integration, doctests | criterion, divan |
+| TS / JS | Vitest(new)* / Jest(existing); node:test(zero-dep) | fast-check | vi.mock/jest.mock, msw | Playwright(preferred) / Cypress | Vitest bench, tinybench |
+| Python | pytest*, unittest(stdlib) | Hypothesis | unittest.mock, pytest-mock | Playwright-python, Selenium | pytest-benchmark |
+| Shell | Bats-core(bash)*, shUnit2(POSIX), ShellSpec(BDD) | — | shellmock | Bats + real CLI | hyperfine |
 
-## Reference (canonical default first)
-
-| Lang        | Unit / runner                                                 | Property-based                 | Mock                                      | E2E / integration                | Bench                       |
-| ----------- | ------------------------------------------------------------- | ------------------------------ | ----------------------------------------- | -------------------------------- | --------------------------- |
-| **C**       | Unity, Criterion, CMocka, Check                               | theft                          | CMocka, FFF                               | —                                | custom + `clock_gettime`    |
-| **C++**     | GoogleTest (+GoogleMock), Catch2, doctest                     | rapidcheck                     | GoogleMock, trompeloeil                   | —                                | Google Benchmark, nanobench |
-| **Go**      | `testing` (stdlib, table-driven) + testify                    | `testing/quick`, rapid, gopter | gomock (`go.uber.org/mock`), testify/mock | `httptest`, testcontainers-go    | `testing.B` + benchstat     |
-| **Rust**    | built-in `cargo test` (+ rstest fixtures)                     | proptest, quickcheck           | mockall                                   | `tests/` integration, doctests   | criterion, divan            |
-| **TS / JS** | Vitest (new projects) / Jest (existing); `node:test` zero-dep | fast-check                     | `vi.mock`/`jest.mock`, msw                | Playwright (preferred) / Cypress | Vitest bench, tinybench     |
-| **Python**  | pytest (default), unittest (stdlib)                           | Hypothesis                     | `unittest.mock`, pytest-mock              | Playwright-python, Selenium      | pytest-benchmark            |
-| **Shell**   | Bats-core (bash), shUnit2 (POSIX), ShellSpec (BDD)            | —                              | shellmock                                 | Bats + the real CLI              | `hyperfine`                 |
-
-Also: Java → JUnit 5 + Mockito + AssertJ · C#/.NET → xUnit/NUnit + Moq · Ruby →
-RSpec/Minitest · PHP → PHPUnit/Pest · Swift → Swift Testing/XCTest · Elixir → ExUnit.
-
-## Pair with the matching agent
-
-- `agents/builder.md` writes tests in the detected framework as the RED step of TDD.
-- The `write-test` skill generates coverage in that framework, in its idiom.
-- Property-based tests count toward "done" (`quality-bar.md`) for anything that parses
-  external input — generate inputs, don't only hand-pick examples.
+SECONDARY_STACKS:
+- Java: JUnit 5* + Mockito + AssertJ
+- C#/.NET: xUnit* / NUnit + Moq
+- Ruby: RSpec* / Minitest
+- PHP: PHPUnit* / Pest
+- Swift: Swift Testing* / XCTest
+- Elixir: ExUnit*

@@ -4,42 +4,29 @@ description: >
   Usage: /workflow:project-facts
 ---
 
-# Project Facts
+[WORKFLOW: PROJECT_FACTS]
+OBJECTIVE: Regenerate `## Project facts` in `AGENTS.md` strictly from fresh tool stdout (zero memory reliance). Every claim must trace to a tool run in this session.
 
-Regenerate the `## Project facts` section of AGENTS.md from tool output, not memory. Every claim
-in the section must trace to a tool run in this workflow.
+1. REVIEW:
+- Run `.opencode/tools/digest.sh --refresh` (under `.opencode/tools/watch.sh`) + `.opencode/tools/{codemap.sh, untested.sh, dupes.sh}`.
+- Extract: stack/shape (languages, file count, LOC), heaviest files, untested count, dupes, CI presence (`.github/`).
 
-## Phase 1 — Review
+2. FACTS:
+- Run `.opencode/tools/facts.sh --refresh`.
+- Extract: languages, build/test/lint commands, entry points, quality gates (present/absent), test framework.
 
-- Run `.opencode/tools/digest.sh --refresh` under `.opencode/tools/watch.sh`, plus
-  `.opencode/tools/codemap.sh`, `.opencode/tools/untested.sh`, and `.opencode/tools/dupes.sh`.
-- Record: the stack and shape (languages, file count, LOC), the heaviest files, the untested
-  count, the duplication candidates, and CI presence (`.github/`).
-
-## Phase 2 — Facts
-
-- Run `.opencode/tools/facts.sh --refresh` for the authoritative languages, build/test/lint
-  command, entry points, quality gates (present and absent), and test framework.
-
-## Phase 3 — Compose
-
-- Write the `## Project facts` section as descriptive prose: what the project is (the
-  `.opencode/` engineering harness), its stack and shape, build/test state, quality-gate state,
-  test framework, plus the review observations from Phase 1 — each claim traceable to the tool
-  that produced it.
-- End the section with exactly:
+3. COMPOSE:
+- Draft `## Project facts` prose: project definition (`.opencode/` harness), stack/shape, build/test/gate state, test framework, Phase 1 metrics.
+- Cite producing tool for every claim.
+- Terminal suffix (exact):
   `_Run `/workflow:project-facts` to review the codebase and regenerate this section._`
 
-## Phase 4 — Gate
+4. GATE:
+- Present draft. HARD_BLOCK: Wait for explicit go before editing `AGENTS.md`.
 
-- Present the composed section.
-- **Wait for explicit go before editing AGENTS.md.**
+5. APPLY:
+- Replace `## Project facts` in `AGENTS.md`.
+- Add `project-facts` row to §3.4 workflows table.
 
-## Phase 5 — Apply
-
-- Replace the `## Project facts` content in AGENTS.md with the composed section.
-- Add the `project-facts` row to the §3.4 workflows table.
-
-## Phase 6 — Report
-
-- Output the resulting section and what changed.
+6. REPORT:
+- Output updated section and delta summary.

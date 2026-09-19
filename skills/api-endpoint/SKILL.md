@@ -5,31 +5,17 @@ description: >
   "add an endpoint", "new API route", "expose this over HTTP", "wire a handler"
 ---
 
-# API Endpoint
+# PROTOCOL: API_ENDPOINT_INTEGRATION
+FORBID: route_addition UNTIL READ(nearest_handler, ".opencode/rules/api-convention.md")
 
-DO NOT add a route before reading the nearest existing handler and `.opencode/rules/api-convention.md`.
-
-## 1. Locate
-
-- Which part of the project owns it; find the closest existing endpoint.
-- Mirror its file, registration, and owner-scoping pattern.
-
-## 2. Design
-
-- Method, path (`/v1/...`), request/response shape, auth (API-key → identity), per-request owner-scope.
-- Cloud/enterprise behavior is flag-gated OFF (`if envBool("FLAG")`, default false).
-
-## 3. Implement
-
-- Handler + route registration + the entry in the project's OpenAPI / API spec.
-- Adapter-agnostic: if it touches data, it must hold across every backend the project supports.
-
-## 4. Verify
-
-- Run the relevant check through the project's task runner (detect it with `.opencode/tools/facts.sh`).
-- Regenerate SDKs if the spec changed.
-- Add a verify gate (a `scripts/verify/` check or CI job) that exercises the route.
-
-## 5. Report
-
-- Files changed, the new route + its auth/owner-scope, and the gate that proves it.
+1. LOCATE: Identify owner module & closest endpoint -> mirror file structure, registration pattern, owner-scoping semantics.
+2. DESIGN:
+   - Spec: Method, path (`/v1/...`), req/res schema.
+   - Auth/Scope: `API-key -> identity` resolution; enforce per-request owner-scope.
+   - Gating: Cloud/enterprise logic OFF by default: `if envBool("FLAG")` (default: false).
+3. IMPLEMENT: Handler + route registration + OpenAPI/API spec entry. Enforce adapter-agnostic persistence across all supported backends.
+4. VERIFY:
+   - Task Runner: Auto-detect via `.opencode/tools/facts.sh`; execute relevant checks.
+   - SDK Sync: IF api_spec_modified -> regenerate SDKs.
+   - Gate: Implement route-exercising test (`scripts/verify/` check OR CI job).
+5. REPORT: Emit changed files, route contract (method, `/v1/...`, auth, owner-scope), and verification gate proof.

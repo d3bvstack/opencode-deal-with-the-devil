@@ -2,41 +2,28 @@
 description: Deep refactor at the strictest standard for the technology. Usage: /refactor <technology> [file or module path]
 ---
 
-Technology: $ARGUMENTS
+[WORKFLOW: REFACTOR]
+PARAM: Technology=$ARGUMENTS
 
-Read and apply ALL of the following before touching any code:
+PREFLIGHT:
+- Ingest: `.opencode/rules/refactor-common.md` and `.opencode/rules/refactor-$ARGUMENTS.md`.
+- IF tech rule file missing ⇒ HALT and report.
 
-1. .opencode/rules/refactor-common.md (always)
-2. .opencode/rules/refactor-<technology>.md (for the specified tech)
+1. AUDIT (Read-only; zero mutations):
+- Scan all in-scope files; enumerate common + tech rule violations; tally per category.
 
-If the technology file doesn't exist, stop and say so.
+2. PLAN:
+- Rank priority: `correctness > norm > clarity > style`.
+- Define one-line transformation per group.
+- Explicitly flag public API modifications.
+- HARD_GATE: Present plan; await approval before proceeding.
 
-## Workflow
+3. EXECUTE:
+- Commits strictly atomic (1 per logical change; mega-commits FORBIDDEN).
+- Message: cite rule fixed + rationale.
+- Run linter/norm-checker and tests after each change; HALT on test failure.
 
-### Phase 1 — Audit
-
-- Read every file in scope
-- List every violation of the common + tech-specific rules
-- Count violations per category
-- DO NOT change anything yet
-
-### Phase 2 — Plan
-
-- Group violations by priority: correctness > norm > clarity > style
-- For each group, describe the transformation in one line
-- If a refactor changes public API surface, flag it explicitly
-- Present the plan. Wait for approval before proceeding.
-
-### Phase 3 — Execute
-
-- One commit per logical transformation, not one mega-commit
-- Each commit message: what rule it fixes and why
-- Run the norm checker / linter after each transformation
-- Run tests after each transformation — if any fail, stop
-
-### Phase 4 — Verify
-
-- Run full test suite
-- Run the tech-specific norm checker one final time
-- Produce a summary table: violations before → after per category
-- If any violation remains, list it explicitly with justification
+4. VERIFY:
+- Run full test suite + final tech norm check.
+- Summary table: violations before → after per category.
+- List and justify any residual violations.

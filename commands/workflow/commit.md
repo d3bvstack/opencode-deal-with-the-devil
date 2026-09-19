@@ -4,46 +4,35 @@ description: >
   Usage: /workflow:commit [scope...]
 ---
 
-# Commit
+[WORKFLOW: COMMIT]
+SCOPE: $ARGUMENTS ? match($ARGUMENTS) : ALL. Non-matching scopes deferred to human.
 
-Scope (optional): $ARGUMENTS — when given, only matching logical-change scopes are committed;
-everything else is reported as left for the human. When omitted, all scopes are in scope.
+PHASE_1: INVENTORY
+- Run: `git status --porcelain`, `git diff`, `git diff --cached`.
+- Partition working-tree changes into logical units scoped to planes: {tools, workflows, agents, rules, commands, skills, docs}.
+- Tag in-scope vs deferred changes per $ARGUMENTS.
 
-## Phase 1 — Inventory
+PHASE_2: REVIEWER_GATE
+- Dispatch `reviewer` on UNCOMMITTED diff + tree.
+- Branches:
+  * APPROVE ⇒ Advance to Phase 3.
+  * REQUEST-CHANGES ⇒ Fix cited `file:line` findings locally → re-dispatch `reviewer` (commits FORBIDDEN until APPROVE).
+  * REJECT ⇒ HALT; return to `builder` (bypassing verdict FORBIDDEN).
 
-- Run `git status --porcelain`, `git diff`, and `git diff --cached`.
-- Map every working-tree change to a logical change, each scoped to a harness plane:
-  `tools`, `workflows`, `agents`, `rules`, `commands`, `skills`, `docs`.
-- Record which scopes match `$ARGUMENTS` (all when no scope is given).
+PHASE_3: PLAN
+- Commits strictly atomic: `<type>(<scope>): <what>`.
+- FORBID: Mixing refactor and feature in single commit.
+- Schema: Table of `commit message → files → logical change`.
 
-## Phase 2 — Reviewer gate
+PHASE_4: HUMAN_GATE
+- Present commit plan + `reviewer` verdict.
+- HARD_BLOCK: Await explicit human confirmation before executing any commit.
 
-- Dispatch the `reviewer` agent on the UNCOMMITTED diff + tree — this runs before any commit exists.
-- Honor the verdict:
-  - **APPROVE** → proceed to Phase 3.
-  - **REQUEST-CHANGES** → fix the cited `file:line` findings locally, then re-dispatch the
-    `reviewer`. No commit before the verdict flips to APPROVE.
-  - **REJECT** → stop and hand back to the `builder`; do not route around the verdict.
+PHASE_5: EXECUTE
+- Commit each in-scope group with approved plan message.
+- FORBID: Trailers (`Co-Authored-By:`, "Generated with").
+- Retain out-of-scope changes uncommitted.
 
-## Phase 3 — Organize the plan
-
-- One commit per logical change: `<type>(<scope>): <what>`.
-- Never mix refactor and feature in one commit.
-- Present the plan as a table: commit message → files → logical change.
-
-## Phase 4 — Human approval
-
-- Present the plan together with the `reviewer` verdict.
-- **Wait for explicit go before executing any commit.**
-
-## Phase 5 — Execute
-
-- Commit each logical group with the message from the approved plan.
-- Commits must contain NO `Co-Authored-By:` or "Generated with" trailer.
-- Leave the groups outside the requested scope uncommitted; they are reported in Phase 6.
-
-## Phase 6 — Report
-
-- Commits created: message + short hash.
-- What was intentionally left uncommitted.
-- Push is the human's step — it happens only on a separate explicit trigger, never on this path.
+PHASE_6: REPORT
+- Output: Created commits (`<message>` + `<short_hash>`) and uncommitted groups left behind.
+- INVARIANT: FORBID git push (`push` is strictly a separate human trigger).

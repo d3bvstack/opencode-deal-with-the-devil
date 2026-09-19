@@ -4,44 +4,31 @@ description: >
   Usage: /workflow:compat-audit
 ---
 
-# Behavioral Parity Audit
+[WORKFLOW: BEHAVIORAL_PARITY_AUDIT]
 
-## 1. API surface extraction
+1. SURFACE_EXTRACTION:
+- Ingest pinned reference API spec/OpenAPI (citation mandatory).
+- Map endpoints [method, path, params, response_shape] across: [records, auth, files, realtime, settings, admin].
 
-- Fetch the reference API docs or OpenAPI spec at the pinned reference version (cite it)
-- List every endpoint: method, path, params, response shape
-- Group by: records, auth, files, realtime, settings, admin
+2. TEST_GENERATION:
+- Generate requests via target backend's native SDK/client.
+- Matrix per endpoint: [happy_path, auth_required, forbidden, not_found].
 
-## 2. Test generation
+3. EXECUTION:
+- Seed schema collections: [users, posts, files].
+- Dispatch requests; record verdict:
+  * PASS: Identical response.
+  * PARTIAL: Status matches; shape diverges.
+  * FAIL: Wrong status ∨ runtime crash.
 
-For each endpoint:
+4. GAP_ANALYSIS:
+- Per discrepancy: Compare expected (reference) vs actual (target).
+- Severity:
+  * BREAKING: Application crash.
+  * DEGRADED: Functional malfunction.
+  * COSMETIC: Format variance (functional).
 
-- Generate an HTTP request that exercises it
-- Include: happy path, auth required, forbidden, not found
-- Use the target backend's SDK/client as the client (same as real apps would)
-
-## 3. Execution
-
-- Start the project with a test schema (users + posts + files collections)
-- Run every request against the project
-- Record: pass (identical response), partial (status matches but
-  shape differs), fail (wrong status or crash)
-
-## 4. Gap analysis
-
-For each failure:
-
-- Expected behavior (from the reference spec)
-- Actual project behavior
-- Severity: breaking (apps crash) / degraded (apps work wrong) /
-  cosmetic (different format but functional)
-
-## 5. Report
-
-Output: `docs/compat/audit-<date>.md`
-
-- Total endpoints: X
-- Pass: X | Partial: X | Fail: X
-- Coverage: X%
-- Blocking issues (must fix before claiming parity with the reference)
-- Full endpoint-by-endpoint table
+5. REPORT (`docs/compat/audit-<date>.md`):
+- Metrics: Total endpoints, counts [Pass, Partial, Fail], Coverage %.
+- Parity-blocking issues (prerequisites for reference compatibility).
+- Full endpoint-by-endpoint audit table.

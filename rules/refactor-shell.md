@@ -3,47 +3,36 @@ globs: ["**/*.sh"]
 description: POSIX shell refactoring rules
 ---
 
-# POSIX Shell Refactoring
+[RULES: POSIX_SHELL_REFACTORING]
 
-## Strict POSIX compliance
+POSIX_COMPLIANCE:
+- FORBID bashisms: [[ ]], arrays, (( )), ${var/pat/rep}.
+- Shebang: #!/bin/sh (FORBID #!/bin/bash unless explicitly bash-only).
+- Quote all expansions: "$var" (not bare $var). set -u compatible.
+- command -v over which. printf over echo for non-trivial output.
 
-- No bashisms — no [[]], no arrays, no (( )), no ${var/pat/rep}
-- Shebang: #!/bin/sh — never #!/bin/bash unless explicitly bash-only
-- Quote every variable expansion: "$var" not $var
-- No unset variable access — set -u compatible
-- Use command -v over which
-- printf over echo for anything non-trivial
+STRUCTURE:
+- Function lines ≤ 25.
+- Layout: Functions at top, execution at bottom via main() call.
+- Scope: Variables local via local keyword or subshell isolation.
+- Cleanup: Mandatory trap on EXIT for all temp files.
 
-## Structure
+POST_REFACTOR_GATES:
+- shellcheck -s sh (zero warnings).
+- Test with dash (not just bash); verify under all target shells.
 
-- Max 25 lines per function — keep them short
-- Functions at top, execution at bottom after a main() call
-- Local variables via local keyword or subshell isolation
-- Cleanup via trap — every temp file cleaned on EXIT
+LADDER_EXTENSIONS:
+- Rung 2: Builtins over external commands (${#var} over wc -c, ${var%.*} over basename).
+- Rung 3: awk one-liner over Python script for text processing.
+- Rung 4: Existing jq over sed/grep for JSON.
+- Rung 5: Pipeline over temp file (always).
+- FORBID function wrapper around a single command.
 
-## After refactoring
-
-- `shellcheck -s sh` — zero warnings
-- Test with dash, not just bash
-- Runs correctly under every shell you target, not just your default
-
-## Shell-specific ladder extensions
-
-- Rung 2: shell builtins over external commands (`${#var}` over `wc -c`, `${var%.*}` over `basename`).
-- Rung 3: an awk one-liner over a Python script for text processing.
-- Rung 4: already have `jq`? Use it for JSON — don't `sed`/`grep`.
-- Rung 5: pipeline over temp file. Always.
-- No function wrapper around a single command.
-
-## Shell performance guardrails
-
-- Ladder says "builtin" but:
-  - shell loop over lines? A single `awk`/`sed` instead — one process beats N fork+execs.
-  - `$(cat file)`? Use `< file` redirection.
-  - `grep | awk | sed` pipeline? Usually one `awk` does all three.
-- Ladder says "one-liner" but:
-  - command substitution in a `while` loop? Forks per iteration — process in bulk.
-- Minimize subshells: `$()` forks, variable assignment doesn't.
-- Minimize pipe stages: each is a fork + FD pair.
-- Heredoc over `echo` piped to a command.
-- `exec` for the final command in a script (no useless parent shell lingering).
+PERFORMANCE_GUARDRAILS (Fork/Process Minimization):
+- Single awk/sed over line-by-line shell loops (1 process beats N fork+execs).
+- Redirection < file over $(cat file).
+- Unified single awk over chained grep | awk | sed pipelines.
+- Bulk processing over command substitution in while loops.
+- Minimize subshells ($() forks; assignments do not) and pipe stages (each is fork + FD pair).
+- Heredoc over echo piped to a command.
+- exec for final command in script (eliminates lingering parent shell).

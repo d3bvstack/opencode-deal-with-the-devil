@@ -3,40 +3,31 @@ description: When a decision must face the devil's verdict before it becomes cod
 alwaysApply: true
 ---
 
-# Risk — engineer the decision before you write the code
+[RULES: RISK_GATE_DEVIL]
+ORDER_OF_PRECEDENCE: DECISION_GATE(devil | /deal) >> CODE_QUALITY_GATES(quality-bar, TDD)
 
-The sharpest failure mode is a fast, plausible answer to an under-thought decision. The fix is
-a gate: before risky work turns into code, it faces the `devil` (the risk magistrate), who rules
-on it. Code-correctness gates (`quality-bar`, TDD) come *after* — they can't save a wrong decision.
+EXTERNALIZATION_PRECONDITION:
+MANDATORY: Plan externalization required prior to verdict.
+SCHEMA: {assumptions, inputs_and_edge_cases, failure_modes, epistemic_gaps_unknowns}
 
-## When the verdict is MANDATORY
+ROUTING_TRIGGERS:
+EVAL_REQUIRED := (
+    MATCHES_ANY(
+        IRREVERSIBLE(deploy, delete, data_migration, publish, force_push, secret_rotation),
+        SECURITY(auth, access_control, crypto, secrets, untrusted_input),
+        DATA_SCHEMA(migration, destructive_query, format_change, backfill),
+        PUBLIC_SURFACE(shipped_api, contract, shared_lib_dependency),
+        CONCURRENCY(shared_state, locks, async_ordering, race_hazards),
+        WIDE_BLAST(multi_file_module, hot_path)
+    ) OR UNCERTAIN(qualifies)
+) AND NOT (trivial AND reversible AND local_scope)
 
-Route the plan through `devil` (or the `/deal` workflow) before acting when it is:
+SCORING_VECTORS (ref: agents/devil.md):
+EVALUATE: scale=[1..5], identify=ARGMAX(worst_axis)
+AXES: [blast_radius, reversibility, cost_on_failure, confidence_unverified_assumptions]
 
-- **Irreversible** — a deploy, delete, data migration, publish, force-push, key/secret rotation.
-- **Security-sensitive** — auth, access control, crypto, secrets, anything touching untrusted input.
-- **Data / schema** — a migration, a destructive query, a format change, a backfill.
-- **Public surface** — a shipped API, a contract, a shared library others depend on.
-- **Concurrency** — shared state, locks, async ordering, anything with a race.
-- **Wide blast** — touches many modules/files, or sits on a hot path.
-
-Trivial, reversible, local work skips the gate — the devil is a tribunal, not a tollbooth. When
-unsure whether a change qualifies: it qualifies.
-
-## How risk is scored
-
-The devil scores four axes 1–5 and names the worst (see `agents/devil.md`): blast radius ·
-reversibility · cost on failure · confidence (unverified assumptions).
-
-## The verdict is the gate
-
-- **BLOCK** stops the work. Resolve what it names, then re-submit — don't route around it.
-- **PROCEED-WITH-CONDITIONS** — the conditions become acceptance criteria the `builder` must meet.
-- **PROCEED** — act.
-- UNKNOWN = FAIL: an unproven safety claim rules as BLOCK, not PROCEED.
-
-## Externalize before you rule
-
-A plan can't be judged while it's in your head. Before the verdict, write down the assumptions,
-the inputs / edge cases, the failure modes, and what you DON'T know. Half the under-thinking dies
-the moment it's on the page.
+VERDICT_ACTION_GATES:
+- BLOCK: HALT execution. Remediate named flaws -> re-submit. BYPASS=FORBIDDEN.
+- PROCEED-WITH-CONDITIONS: Inject conditions into `builder.acceptance_criteria`.
+- PROCEED: EXECUTE.
+- FAILSAFE: unproven_safety_claim | UNKNOWN -> VERDICT=BLOCK

@@ -3,57 +3,38 @@ description: Universal refactoring rules — applies to all technologies
 alwaysApply: true
 ---
 
-# Refactoring — Common Ground (craft discipline)
+[RULES: REFACTOR_COMMON]
 
-## Structural invariants
+STRUCTURAL_INVARIANTS:
+- SRP: 1 function = 1 responsibility (split if described with "and").
+- Limits: Function lines ≤ tech limit; File lines ≤ 300 (beyond: split into ≥2 modules).
+- Complexity: Parameters ≤ 4 (beyond: use struct/object); Nesting depth ≤ 3 (beyond: extract helper).
+- Hygiene: FORBID dead code, commented-out code, and unlinked TODOs.
 
-- One function does one thing. If you need "and" to describe it, split it.
-- No function exceeds the technology's line limit (see tech-specific rules)
-- No file exceeds 300 lines. If it does, it's at least two modules.
-- No more than 4 parameters per function. Beyond that, use a struct/object.
-- Max nesting depth: 3 levels. If deeper, extract a helper.
-- No dead code. No commented-out code. No TODO without a linked issue.
+NAMING:
+- Behavior over Implementation: Names describe behavior, not mechanics.
+- Identifiers: Single-letter names FORBIDDEN (except loop indices and math formulas).
+- Lexicon: Consistent across codebase (FORBID mixing fetch/get/retrieve). Acronyms follow tech convention (e.g. HTTP in Go, http in Rust).
 
-## Naming
+ERROR_HANDLING:
+- Explicit: Handle every fallible operation. Silent swallows FORBIDDEN (log, propagate, or convert).
+- Message Contract: Detail what failed, why, and caller remediation.
 
-- Names describe behavior, not implementation
-- No single-letter names outside loop indices and math formulas
-- Consistent vocabulary — don't mix "fetch/get/retrieve" in the same codebase
-- Acronyms follow the tech convention (e.g., HTTP in Go, http in Rust)
+MEMORY_&_RESOURCES:
+- Lifecycles: Every allocation requires an explicit owner and free path.
+- Zero Leaks: Memory, FDs, goroutines, subscriptions. Validate via tooling (`valgrind`, `go vet`, `clippy`, etc.).
 
-## Error handling
+DEPENDENCIES:
+- Purge unused imports. Prefer stdlib over external packages. Inline single-function dependencies.
 
-- Every fallible operation is handled explicitly
-- No silent swallows — log, propagate, or convert, never ignore
-- Error messages include: what failed, why, what the caller can do
+TESTING:
+- Invariance: Behavior unchanged; tests pass before AND after. Write missing tests FIRST.
+- Edge Matrix: Empty input, max input, null/nil/undefined, concurrent access.
 
-## Memory and resources
+COMMITS:
+- Atomicity: 1 logical change per commit (`refactor(<scope>): <what> — <which rule>`).
+- Isolation: FORBID mixing refactoring with feature modifications.
 
-- Every allocation has a clear owner and a clear free path
-- No leaks — memory, file descriptors, goroutines, subscriptions, all of it
-- Validate with the appropriate tool (valgrind, go vet, clippy, etc.)
-
-## Dependencies
-
-- No unnecessary imports. Remove every unused one.
-- Prefer standard library over external dependency
-- If a dependency is used for one function, inline it
-
-## Testing
-
-- Refactoring does not change behavior — tests must pass before AND after
-- If no tests exist for the refactored code, write them FIRST
-- Edge cases: empty input, max input, null/nil/undefined, concurrent access
-
-## Commits
-
-- Atomic: one logical change per commit
-- Message format: `refactor(<scope>): <what> — <which rule>`
-- Never mix refactoring with feature work in the same commit
-
-## Craft over cleverness
-
-- Simplest solution that works. No premature abstraction.
-- If you can delete code instead of refactoring it, delete it.
-- The best refactor is the one that reduces total line count.
-- Nothing is lost, everything transforms — extract reusable pieces.
+CRAFT_PRINCIPLES:
+- Simplicity first; premature abstraction FORBIDDEN. Deletion > Refactoring.
+- Optimal refactor reduces net LOC. Extract reusable pieces (nothing lost, everything transforms).

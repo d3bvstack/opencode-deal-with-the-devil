@@ -3,28 +3,21 @@ description: Verify the environment before building; bound every command so noth
 alwaysApply: true
 ---
 
-# Run safely — verify first, never hang
+[RULES: EXECUTION_SAFETY]
+SEQUENCE: `.opencode/tools/preflight.sh` -> FIX_CONFIG -> `.opencode/tools/watch.sh [CMD]` -> `quality.sh`
+INVARIANT: LATE_VERIFICATION == NULL_VERIFICATION
 
-Two failure modes waste the most time: building against an unconfigured environment,
-and waiting forever on a stuck process. Both are preventable. Both have a tool.
+PHASE 1: PREFLIGHT (`.opencode/tools/preflight.sh`)
+- TRIGGER: MANDATORY prior to {compile, build, run}.
+- SCOPE: Explicit verification of {.env, secrets, credentials}.
+- SEVERITY: unset(required_var) => BLOCKER (NOT WARNING).
+- SANITIZATION: FORBID printing secret values; LOG {name, status: SET|UNSET} only.
 
-## Verify before you build
-
-- Run `.opencode/tools/preflight.sh` before any compile / build / run. Missing `.env`,
-  secrets, or credentials fail fast and clearly — not ten minutes into a build.
-- Config is checked, never assumed. A required var that's unset is a blocker, not a warning.
-- Never print secret values — names and set/unset only (preflight already redacts).
-
-## Never wait forever
-
-- Wrap every build, test, install, migration, or deploy in `.opencode/tools/watch.sh`.
-  It enforces a hard timeout AND an idle timeout, so a hang is detected and killed —
-  the agent moves on with a clear reason; it does not stall the session.
-- A watchdog kill (exit 124) is a fact to act on: the command hung or overran. Diagnose
-  it; don't blindly re-run.
-- Tune `--idle` for genuinely silent long tasks; never wrap an interactive prompt.
-
-## Order of operations
-
-`preflight` → fix config → build/test under `watch` → `quality.sh` gate. Verifying late
-is the same as not verifying.
+PHASE 2: EXECUTION_WATCHDOG (`.opencode/tools/watch.sh`)
+- TARGETS: MANDATORY wrapper for {build, test, install, migration, deploy}.
+- CONTROLS: Enforces hard timeout + idle timeout (kills hangs; prevents session stall).
+- PARAMS: Calibrate `--idle` for prolonged silent tasks.
+- FORBID: Wrapping interactive prompts.
+- ON_EXIT(124):
+  - DIAGNOSE hang/overrun root cause.
+  - FORBID blind re-execution.

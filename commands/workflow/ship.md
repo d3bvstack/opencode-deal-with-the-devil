@@ -3,42 +3,18 @@ description: >
   Full release pipeline. Usage: /workflow:ship <major|minor|patch>
 ---
 
-# Ship
+[PIPELINE: SHIP]
+PARAM: Bump_Type=$ARGUMENTS
 
-Bump type: $ARGUMENTS
+GATES:
+1. PREFLIGHT: Invariants: all tests pass, zero linter warnings, git tree clean, branch synced with main.
+2. BENCHMARK: Run benchmark suite vs last release tag. IF regression > 5% ⇒ ABORT(report specifics).
+3. PARITY: Run behavioral parity vs reference spec. IF new failures vs last release > 0 ⇒ ABORT(report diff).
 
-## 1. Pre-flight
+MUTATIONS:
+4. BUMP: Bump version across all manifests per Bump_Type. Update `CHANGELOG.md` via `/changelog`.
+5. COMMIT: Commit `chore(release): vX.Y.Z` and tag `vX.Y.Z`.
 
-- All tests pass
-- Zero linter warnings
-- No uncommitted changes
-- Branch is up to date with main
-
-## 2. Benchmark gate
-
-- Run full benchmark suite
-- Compare against last release tag
-- If any regression > 5%: ABORT and report what regressed
-
-## 3. Parity gate
-
-- Run the behavioral parity tests against the reference spec
-- If any new failure vs last release: ABORT and report
-
-## 4. Version bump
-
-- Bump version in all manifests
-- Update CHANGELOG.md (invoke /changelog)
-
-## 5. Final commit
-
-- `chore(release): vX.Y.Z`
-- Tag: `vX.Y.Z`
-
-## 6. Present for approval
-
-- Version number
-- Changelog summary
-- Benchmark comparison
-- Parity comparison
-- **Wait for explicit "ship it" before pushing tag**
+APPROVAL_GATE:
+6. PRESENT: Display [version, changelog summary, benchmark comparison, parity comparison].
+   HARD_BLOCK: Await explicit "ship it" before pushing tag.

@@ -2,26 +2,23 @@
 description: Run or inspect the project's migrations across backends. Usage: /migrate <status|all|backend>
 ---
 
-Action: $ARGUMENTS
+[WORKFLOW: RUN_MIGRATIONS]
+PARAM: Action=$ARGUMENTS
 
-Drive the migration lifecycle through the project's task runner (detect it with `.opencode/tools/facts.sh`,
-run it under `.opencode/tools/watch.sh`). Do NOT hand-edit migrations here — to
-AUTHOR a new migration use `/workflow:migrate-db`.
+HARNESS:
+Detect task runner via `.opencode/tools/facts.sh`; run under `.opencode/tools/watch.sh`.
+BOUNDARY: FORBID manual migration edits here (authoring delegated to `/workflow:migrate-db`).
 
-## Workflow
+1. INSPECT:
+- Run project migrate-status (applied vs pending).
+- Locate migration files; audit numbering sequence for gaps.
 
-### Phase 1 — Inspect
+2. APPLY (Confirm first — DB writes are irreversible):
+- Action dispatch:
+  * "status"  → project migrate-status
+  * "all"     → project migrate-all
+  * "backend" → project per-backend migrate (requires target backend services UP)
+  * null      → project default migrate
 
-- Run the project's migrate-status command — applied vs pending.
-- Locate the migration files in the project (note any gaps in the numbering).
-
-### Phase 2 — Apply (confirm first — DB writes are irreversible)
-
-- `status` → the project's migrate-status command
-- `all` → the project's migrate-all command
-- `backend` → the project's per-backend migrate command (needs that backend's services up)
-- no arg → the project's default migrate command
-
-### Phase 3 — Verify
-
-- Re-run the migrate-status command; confirm idempotency (re-applying is a no-op).
+3. VERIFY:
+- Re-run migrate-status; assert idempotency (re-applying ≡ no-op).

@@ -2,24 +2,21 @@
 description: Run comparative benchmarks (the project vs the reference baseline) and flag regressions. Usage: /bench [load|capacity|footprint|mem|startup]
 ---
 
-Scope: $ARGUMENTS
+[WORKFLOW: BENCHMARK]
+PARAM: Scope=$ARGUMENTS
 
-Run the canonical benchmark for the given scope on the current branch through the project's task runner
-(detect it with `.opencode/tools/facts.sh`, run it under `.opencode/tools/watch.sh`).
+RUNNER:
+Detect task runner via `.opencode/tools/facts.sh`; execute on current branch under `.opencode/tools/watch.sh`.
 
-## Workflow
+1. RUN:
+- Map Scope → target ∈ {load, capacity, footprint, mem, startup}.
+- IF Scope is empty ⇒ execute full suite.
 
-### Phase 1 — Run
+2. ANALYZE:
+- Ingest project benchmark artifact (cite measured data exclusively; claims FORBIDDEN).
+- Vectors: read, write, login, boot time, memory (compare against reference baseline where relevant).
+- Threshold: Flag regressions > 5% from baseline.
 
-- Map scope → the project's benchmark target: load | capacity | footprint | mem | startup.
-- No scope → run the full suite.
-
-### Phase 2 — Analyze
-
-- Read the benchmark artifact the project writes — every cited number comes from there (measured, not claimed).
-- Flag any regression over 5% from the baseline.
-- Compare read, write, login, boot time, and memory; compare against the reference baseline where relevant.
-
-### Phase 3 — Report
-
-- A markdown table with before / after / delta columns and a ✅ / ⚠️ / ❌ status per row.
+3. REPORT:
+Emit markdown table:
+| Operation | Before | After | Delta | Status (✅ / ⚠️ / ❌) |

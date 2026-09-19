@@ -2,21 +2,16 @@
 description: Run the feature-parity comparison against the reference baseline for the project. Usage: /compat [feature-area]
 ---
 
-Feature area: $ARGUMENTS
+[WORKFLOW: FEATURE_COMPARE]
+SCOPE: $ARGUMENTS ? $ARGUMENTS : ALL (defer deep endpoint passes to `/workflow:compat-audit`).
 
-Compare the project against the reference implementation for the given feature area (or all if none given). For a deep,
-endpoint-by-endpoint pass, use `/workflow:compat-audit`.
+1. ENUMERATE:
+- List reference baseline capabilities in scope vs project equivalents (cite project reference docs).
 
-## Workflow
+2. COMPARE:
+- Verdict per capability: WIN | PARITY | honest-LOSS ("choose them if" discipline).
+- Invariant: Zero invented numbers; cite concrete artifacts.
 
-### Phase 1 — Enumerate
-
-- List the reference baseline's capabilities in scope and the project's equivalent, citing the project's reference docs.
-
-### Phase 2 — Compare
-
-- For each capability: WIN / PARITY / honest-LOSS — the "choose them if" discipline. No invented numbers; cite artifacts.
-
-### Phase 3 — Report
-
-- A markdown table: capability | reference baseline | the project | verdict.
+3. REPORT:
+Emit markdown table:
+| Capability | Reference baseline | The project | Verdict |

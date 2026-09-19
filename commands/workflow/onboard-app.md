@@ -4,92 +4,59 @@ description: >
   Usage: /workflow:onboard-app <repo-url-or-path>
 ---
 
-# Onboard External App to the Project
+[WORKFLOW: ONBOARD_EXTERNAL_APP]
+TARGET: $ARGUMENTS
 
-Target: $ARGUMENTS
+PHASE_1: RECON (Read-only; mutations FORBIDDEN)
+1. Ingest app (clone/locate).
+2. Profile stack:
+   - Frontend: [React, Vue, Svelte, etc.]
+   - Backend: [Express, Django, Rails, Firebase, Supabase, etc.]
+   - Database: [Postgres, MySQL, MongoDB, SQLite, etc.]
+   - Auth: [JWT, sessions, OAuth providers]
+   - Storage: [local, S3, etc.]
+   - Realtime: [websockets, SSE, polling, none]
+3. Map backend interface:
+   - Frontend API endpoints, data models/schemas, auth flows, file upload paths, server-side logic (cron, webhooks, triggers).
+4. Output Compatibility Matrix:
+   | Feature | App uses | Project supports | Gap |
+   | ------- | -------- | ---------------- | --- |
+   Rows: CRUD, Auth (email/pass), OAuth providers, Realtime, File storage, API rules / ACL, Server-side logic, Fulltext search, Joins / expand.
+5. Verdict:
+   - FULL: Complete migration sans custom backend.
+   - PARTIAL: Migration viable via hooks/workarounds.
+   - BLOCKED: Critical unsupported dependency.
+HARD_GATE: STOP. Present matrix. Await explicit human go/no-go.
 
-## Phase 1 — Recon (read only, change nothing)
+PHASE_2: SCHEMA_MIGRATION
+1. Convert models to project collection schemas (JSON).
+2. Field typing: [string, number, bool, email, url, date, file, relation, select, json].
+3. Define collection API rules: [list, view, create, update, delete].
+4. Configure auth collection if users exist.
+5. Import schemas into fresh instance; seed 10 records per collection.
 
-1. Clone or locate the app
-2. Identify the stack:
-   - Frontend framework (React, Vue, Svelte, etc.)
-   - Current backend (Express, Django, Rails, Firebase, Supabase, etc.)
-   - Database (Postgres, MySQL, MongoDB, SQLite, etc.)
-   - Auth method (JWT, sessions, OAuth providers)
-   - File storage (local, S3, etc.)
-   - Realtime (websockets, SSE, polling, none)
+PHASE_3: FRONTEND_REWIRING
+1. Install/detect target backend SDK.
+2. Refactor network calls to SDK equivalents:
+   - REST → SDK list/get/create/update/delete
+   - Auth → SDK password/OAuth2 sign-in
+   - Realtime → SDK subscribe API
+   - Uploads → SDK create-with-form-data
+3. Set API base URL to project backend.
+4. Purge legacy backend dependencies completely.
 
-3. Map every backend call:
-   - Extract every API endpoint the frontend hits
-   - Extract every data model / schema
-   - Extract every auth flow
-   - Extract every file upload path
-   - List any server-side business logic (cron, webhooks, triggers)
+PHASE_4: VALIDATION
+1. Boot project (migrated schema + seed) + frontend dev server.
+2. Verify user journeys:
+   - Auth (signup/login/logout), CRUD across all collections, file upload/download, realtime sync, ACL (non-owner edit permissions).
+3. Execute existing app test suite (if present).
+4. Run `/bench` load test against project backend with new schema.
 
-4. Produce a compatibility matrix:
-
-   | Feature           | App uses | Project supports | Gap |
-   | ----------------- | -------- | ---------------- | --- |
-   | CRUD              |          |                  |     |
-   | Auth (email/pass) |          |                  |     |
-   | OAuth providers   |          |                  |     |
-   | Realtime          |          |                  |     |
-   | File storage      |          |                  |     |
-   | API rules / ACL   |          |                  |     |
-   | Server-side logic |          |                  |     |
-   | Fulltext search   |          |                  |     |
-   | Joins / expand    |          |                  |     |
-
-5. Verdict: FULL / PARTIAL / BLOCKED
-   - FULL = can migrate everything, no custom backend needed
-   - PARTIAL = most works, some needs hooks or workarounds
-   - BLOCKED = fundamental feature the project can't provide yet
-
-**STOP. Present the matrix. Wait for go/no-go.**
-
-## Phase 2 — Schema migration
-
-1. Generate the project's collection schemas (JSON) from the data models
-2. Map field types: string, number, bool, email, url, date,
-   file, relation, select, json
-3. Define API rules per collection (list, view, create, update, delete)
-4. Define auth collection if the app has users
-5. Import schemas into a fresh project instance
-6. Seed with realistic test data (10 records per collection)
-
-## Phase 3 — Frontend rewiring
-
-1. Install the target backend's SDK/client (or identify existing SDK usage)
-2. Replace every backend call with the SDK equivalent:
-   - REST calls → the SDK's list / get / create / update / delete on the resource
-   - Auth → the SDK's password / OAuth2 sign-in
-   - Realtime → the SDK's subscribe API
-   - File uploads → the SDK's create-with-form-data path
-3. Update the API base URL to point at the project
-4. Remove the old backend dependency entirely
-
-## Phase 4 — Validation
-
-1. Start the project with the migrated schema + seed data
-2. Start the frontend dev server
-3. Walk through every user flow manually:
-   - Sign up / login / logout
-   - CRUD on every collection
-   - File upload/download
-   - Realtime updates (if applicable)
-   - Permission checks (can a non-owner edit? should they?)
-4. Run the app's existing test suite if it has one
-5. Run `/bench` against the project with the new schema under load
-
-## Phase 5 — Report
-
-Output: `docs/migrations/<app-name>.md`
-
+PHASE_5: REPORT (`docs/migrations/<app-name>.md`)
 - App name + source URL
-- Stack before → after
+- Stack transition: Before → After
 - Collections created (with field summary)
 - Endpoints mapped (count + list)
-- Gaps found and how they were handled
-- Performance numbers
-- Total migration time
-- Difficulty rating: trivial / medium / hard / required-custom-hooks
+- Gaps identified & remediation strategy
+- Performance numbers + total migration time
+- Difficulty rating: [trivial | medium | hard | required-custom-hooks]

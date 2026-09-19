@@ -2,26 +2,20 @@
 description: Run every strict quality gate in the repo and report PASS/FAIL/SKIP. Usage: /quality [--no-audit] [--with-tests]
 ---
 
-Args: $ARGUMENTS
+[WORKFLOW: QUALITY_GATE]
+PARAM: $ARGUMENTS
+SCOPE: Static gate execution (`rules/quality-bar.md`).
+GUARD: IF `.opencode/tools/quality.sh` is missing ⇒ HALT and report.
 
-Run the full strict gate and report — the static half of "done" (see
-`rules/quality-bar.md`). If `.opencode/tools/quality.sh` is missing, stop and say so.
-
-## Workflow
-
-### Phase 1 — Run
-
+1. RUN:
 - Execute `.opencode/tools/quality.sh $ARGUMENTS`.
-- It is verify-only — it never writes. `--with-tests` adds the test suite,
-  `--no-audit` skips the network audits.
+- Purity: Verify-only; zero file writes (`--with-tests` adds test suite, `--no-audit` skips network audits).
 
-### Phase 2 — Report
+2. REPORT:
+- Output raw table verbatim (never soften):
+  * ❌ (Blocker): Cite `file:line` + strict rule broken.
+  * ⚪ (Uncovered surface): Name installation tool for critical gaps (SAST, audit, a11y).
 
-- Show the table as-is. Don't soften it: ❌ is a blocker, ⚪ is uncovered surface.
-- For each ❌: name the `file:line` and the strict rule it breaks.
-- For each ⚪ that matters (SAST, audit, a11y): name the tool to install.
-
-### Phase 3 — Fix (only if asked)
-
-- Fixing is the builder's job, under TDD. This command reports; it doesn't mutate the
-  tree. If asked to fix, hand off to `agents/builder.md`.
+3. FIX:
+- Reporting only; tree mutations FORBIDDEN.
+- Remediation belongs to `builder` under TDD. IF asked to fix ⇒ hand off to `agents/builder.md`.

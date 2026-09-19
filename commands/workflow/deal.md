@@ -4,44 +4,31 @@ description: >
   The decision-quality gate. Usage: /workflow:deal <the plan or decision>
 ---
 
-# Deal with the devil
+[WORKFLOW: RISK_ADJUDICATION ("DEAL WITH THE DEVIL")]
+TARGET: Plan $ARGUMENTS
+GATE: Pre-code gate for `rules/risk.md` decisions. SKIP iff change is trivial, reversible, and localized (e.g., 1-line fix).
 
-Plan: $ARGUMENTS
+1. EXTERNALIZE:
+- Format: `INPUTS → OUTPUTS → EXACT DONE_WHEN`.
+- Itemize explicitly: [assumptions, edge cases, failure modes, UNKNOWNS].
 
-The bargain: trade a little speed for a verdict you can trust. A risky decision faces the `devil`
-BEFORE the code exists (see `rules/risk.md`). Trivial, reversible, local work skips this — don't
-summon the tribunal for a one-line fix.
+2. GATHER_EVIDENCE:
+- Run `.opencode/tools/digest.sh` (plus `quality.sh` / `dupes.sh` if relevant).
+- Document matched `risk.md` triggers.
 
-## 1. Externalize the plan
+3. DISPATCH_DEVIL:
+- Invoke `devil` agent with [plan + evidence].
+- Expected assessment: steel-man → score risk (blast, reversibility, cost, confidence) → expose unstated failure → pronounce verdict.
 
-- Restate the decision as inputs → outputs → done-when.
-- Write down explicitly: the assumptions, the edge cases, the failure modes, and the UNKNOWNS.
-- A plan that stays in your head can't be judged — put it on the page.
+4. HONOR_SENTENCE:
+- BLOCK ⇒ Resolve cited issues → restart at Step 1 (routing around verdict FORBIDDEN).
+- PROCEED-WITH-CONDITIONS ⇒ Bind conditions as mandatory build acceptance criteria.
+- PROCEED ⇒ Advance directly.
+- HUMAN_GATE: Irreversible decisions strictly require final HUMAN approval (devil advises; does not deploy).
 
-## 2. Gather the evidence
+5. BUILD:
+- Hand verdict + conditions to `builder`.
+- Invariants: TDD + library-first, satisfy 100% of conditions, ensure quality gate is green before "done".
 
-- Run `.opencode/tools/digest.sh` (and `quality.sh` / `dupes.sh` if relevant). Facts, not vibes.
-- Note which `risk.md` triggers this decision hits.
-
-## 3. Submit to the devil
-
-- Invoke the `devil` agent with the plan + the evidence.
-- It steel-mans, scores the risk (blast / reversibility / cost / confidence), names the failure
-  nobody mentioned, and **pronounces a verdict**.
-
-## 4. Honor the sentence
-
-- **BLOCK** → resolve what it named, then return to step 1. Do not route around the verdict.
-- **PROCEED-WITH-CONDITIONS** → the conditions are now acceptance criteria; carry them into the build.
-- **PROCEED** → proceed.
-- For anything irreversible, the **human** gives the final go — the devil advises, it doesn't deploy.
-
-## 5. Build under the verdict
-
-- Hand the verdict + conditions to the `builder`: TDD + library-first, meeting every condition, the
-  quality gate green before "done".
-
-## 6. Record
-
-- For an irreversible or high-blast decision, note the verdict and its conditions in the PR / decision
-  log — one short paragraph. Future-you needs to know why this was safe.
+6. RECORD:
+- Irreversible or high-blast decisions: log verdict + conditions in PR / decision log (one short paragraph).

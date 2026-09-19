@@ -3,38 +3,25 @@ description: Build a project-tailored library first; features are thin glue. No 
 alwaysApply: true
 ---
 
-# Library-first — extract before you duplicate
+[RULES: LIBRARY_FIRST]
+CORE_AXIOM: Capabilities exist exactly once. Build reusable primitives before feature code; features are strictly thin glue.
 
-The smallest, fastest codebase is the one where each capability exists once.
-Before adding feature code, build the reusable primitive; the feature is then thin
-glue over it.
+DISCIPLINE:
+- REUSE_FIRST: Search first via `rg` and cached `codemap` (assume primitive exists). FORBID re-implementation.
+- EXTRACT_ON_COPY: On first attempted duplicate paste: extract into library, test once, call twice. FORBID second copies.
+- ISOLATED_TESTS: Primitives ship with caller-independent tests. Callers trust primitives; zero caller re-testing.
+- THIN_GLUE: Features wire tested primitives. IF a feature exceeds line limits ⇒ extract the hidden primitive.
 
-## The discipline
+TOPOLOGY:
+- Structure: Exactly one home per concern, named for behavior (e.g. `tokens/`, `pagination/`).
+- FORBID: `utils/`, `helpers/`, `misc/` (junk-drawer anti-pattern). Name the concrete concern.
+- Purity: Domain primitives carry zero infrastructure imports (`agents/architect.md`).
 
-- **Reuse before write.** A primitive that exists is used, not re-implemented.
-  Search first (`rg`, the cached `codemap`) — assume it already exists.
-- **Extract before the second copy.** The first time you would paste a block, stop:
-  lift it into the library, test it once, call it twice.
-- **The library is tested in isolation.** A primitive ships with its own test,
-  independent of any caller. Callers trust it; they don't re-test it.
-- **Features are glue.** A feature wires tested primitives together. If a feature
-  function exceeds the tech line limit, a primitive is hiding inside it — extract it.
+TOOL_DEDUPLICATION:
+- Ingest `.opencode/tools/dupes.sh` (repeated blocks) and `.opencode/tools/codemap.sh` (existing symbols).
+- Remediate all candidates; retaining duplicate blocks is FORBIDDEN.
 
-## Where the library lives
-
-- One home per concern, named for behavior (`tokens/`, `pagination/` — not `utils/`).
-- `utils` / `helpers` / `misc` are not a library, they are a junk drawer. Name the concern.
-- Domain primitives carry zero infrastructure imports (see `agents/architect.md`).
-
-## Find the redundancy with tools, not eyes
-
-- `.opencode/tools/dupes.sh` lists repeated blocks — each is an extraction candidate.
-- `.opencode/tools/codemap.sh` shows where a symbol already lives before you add another.
-- Run them; act on them. A duplication candidate left in place is a decision to
-  maintain two copies forever.
-
-## The bar
-
-- Two functions that change for the same reason are one function in the wrong place.
-- Deletion beats addition — the best change removes a copy and adds a call.
-- Nothing is lost, everything transforms: every block worth pasting is worth a name.
+QUALITY_BAR:
+- Covariance: Functions changing for identical reasons belong in one function.
+- Priority: Deletion > Addition (optimal change: remove duplicate, add invocation).
+- Continuous Extraction: Every block worth pasting requires an explicit name.

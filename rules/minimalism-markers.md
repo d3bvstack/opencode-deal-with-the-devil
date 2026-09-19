@@ -3,24 +3,17 @@ description: Marker and comment conventions — front-matter, citations, and wha
 alwaysApply: true
 ---
 
-# Minimalism markers — comments and docs
+[RULES: MINIMALISM_MARKERS]
+CONTEXT: Complements `rules/prompt-contract.md` (proof standard). Governs comments and docs. Use existing markers; inventing new ones FORBIDDEN.
 
-`rules/prompt-contract.md` governs what a result must prove; this rule governs how
-comments and docs mark it. Use the marker that exists — don't invent a new one.
+METADATA:
+- YAML front-matter: `description:` in 1 line; `alwaysApply: true` (general) or `globs:` (scoped only).
+- Atomicity: 1 concept per home; reference `rules/<name>.md` (FORBID re-documenting).
 
-## Rule metadata
+CITATIONS:
+- Evidence: Cite command + stdout, or `file:line` (bare claims FORBIDDEN).
+- Cross-references: Use `rules/<name>.md` paths, not prose descriptions.
 
-- Every rule opens with YAML front-matter: `description:` in one line, `alwaysApply: true`
-  for general rules, `globs:` only for scoped rules.
-- One concept per home — reference `rules/<name>.md`, don't re-document it.
-
-## Citations
-
-- Evidence cites a command and its output, or `file:line` — never a bare claim.
-- Cross-references use `rules/<name>.md` paths, not prose descriptions.
-
-## What is not a marker
-
-- No dead code. No commented-out code. No TODO without a linked issue
-  (`rules/refactor-common.md`).
-- A marker the repo doesn't use is a new concept — it belongs in a rule, not a comment.
+PROHIBITIONS:
+- FORBID: Dead code, commented-out code, and TODOs lacking linked issues (`rules/refactor-common.md`).
+- UNRECOGNIZED_MARKERS: Unestablished markers must be codified in a rule before comment use.

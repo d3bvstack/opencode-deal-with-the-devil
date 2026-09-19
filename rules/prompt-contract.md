@@ -3,36 +3,18 @@ description: How opencode consumes a request (input) and returns work (output). 
 alwaysApply: true
 ---
 
-# Prompt contract — facts in, evidence out
+[RULES: PROMPT_CONTRACT]
+AXIOM: Facts in, evidence out. Prompt quality ≡ empirical reproducibility, not eloquence. Binds all commands, skills, workflows, agents, and subagents (`AGENTS.md`).
 
-The best prompt is not a longer prompt — it is a grounded one: facts gathered
-before action, results returned as proof. This binds every command, skill,
-workflow, and agent here. `AGENTS.md` applies the same discipline to subagents.
+INPUT_DISCIPLINE (Pre-action):
+- Facts First: Run `.opencode/tools/digest.sh` (or domain tool) before planning. Base decisions on tool stdout; guessing FORBIDDEN.
+- Read by Query: Extract conclusions via `rg`, `jq`, cached `codemap`. Slurping full files/trees FORBIDDEN.
+- Contract Formulation: Formalize task as `INPUTS → OUTPUTS → EXACT DONE_WHEN`.
+  * IF `done-when` is unstateable ⇒ task is underspecified ⇒ invoke `/prompt` before touching code.
+- Surface Unknowns: Explicitly name missing facts; assuming or papering over gaps FORBIDDEN.
 
-## Input — before you act
-
-- **Facts first.** Run `.opencode/tools/digest.sh` (or the relevant tool) before
-  forming a plan. Decide from the digest, not from a guess about the tree.
-- **Read by query.** `rg` / `jq` / the cached `codemap` return the conclusion.
-  Never slurp a whole file or tree to answer what a query answers.
-- **Restate as a contract.** Echo the task back as inputs → outputs → done-when.
-  If the done-when is unstateable, the request is underspecified — sharpen it
-  (run `/prompt`) before writing code.
-- **Surface unknowns; never paper over them.** A missing fact is named, not assumed.
-
-## Output — what you return
-
-- **Evidence, not adjectives.** Every claim cites proof: a command and its output,
-  or `file:line`. "Works" / "fast" / "done" without proof is not a result.
-- **Structured for action.** When the caller will act on the result, return a table
-  or list it can consume — not prose it must re-parse.
-- **No half-states.** Finish to a gate or revert to the last green. Never hand back
-  a red test, a partial wiring, or a `TODO` without a linked issue.
-- **Minimal.** Say what changed and how to reproduce it. For code comments and docs,
-  `minimalism-markers.md` governs — this rule doesn't restate it.
-
-## Why this is the best prompt
-
-A request grounded in tool output and returned as evidence is reproducible: the
-next person re-runs the command and sees the same fact. That is the ceiling of
-prompt quality — not eloquence, reproducibility.
+OUTPUT_DISCIPLINE (Return contract):
+- Proof over Adjectives: Every claim requires empirical proof: `(command + stdout)` OR `file:line`. Unsubstantiated claims ("works", "fast", "done") are invalid.
+- Machine-Actionable Structure: Return structured tables or lists for caller consumption; prose requiring re-parsing FORBIDDEN.
+- Zero Half-States: Valid terminal states strictly ≡ {GATE_GREEN, REVERT_TO_LAST_GREEN}. Never return failing tests, incomplete wiring, or unlinked TODOs.
+- Minimal Reporting: Emit changes + exact CLI reproduction commands (comment/doc syntax governed by `minimalism-markers.md`).

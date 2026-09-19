@@ -10,7 +10,7 @@ the "read-by-query" discipline (`AGENTS.md`) made executable.
 | -------------- | -------------------------------------------------------------------------- | ---------------------------------- |
 | `digest.sh`    | "What am I working with?" — the start-of-task briefing                     | composes the summaries below       |
 | `facts.sh`     | "How do I build/test/lint? Which gates and test frameworks exist?"         | manifests, toolchain               |
-| `mk-agents.sh` | "Compose/refresh the generated AGENTS.md index from the live harness files" | commands/, workflows/, skills/, agents/, rules/, tools/ |
+| `mk-agents.sh` | "Compose/refresh the generated AGENTS.md index from the live harness files" | commands/ (incl. workflow/), skills/, agents/, rules/, tools/ |
 | `preflight.sh` | "Is the environment ready?" — `.env` / secrets / toolchain before building | manifests, `.env.example`          |
 | `codemap.sh`   | "Where does X live? What's heavy? What's untested?"                        | every source file                  |
 | `untested.sh`  | "What needs a test before I touch it?" (the TDD worklist)                  | source vs tests                    |

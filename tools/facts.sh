@@ -92,6 +92,12 @@ _test_frameworks() (
     [ -f "$root/$f" ] && { seen "$root/$f" '\bpytest\b' pytest; seen "$root/$f" '\bhypothesis\b' hypothesis; seen "$root/$f" '\bnox\b' nox; }
   done
   [ -f "$root/conftest.py" ] && out="$out pytest"
+  # stdlib unittest: a Makefile invoking it, or Python test files importing it
+  if { manifest Makefile && grep -qE '\bunittest\b' "$root"/[Mm]akefile 2>/dev/null; } \
+     || list_files | grep -E '(_test|test_)\.py$' \
+        | xargs grep -lsE '^[[:space:]]*(import unittest|from unittest import)' 2>/dev/null | grep -q .; then
+    out="$out unittest"
+  fi
   list_files | grep -q '\.bats$' && out="$out bats"
   if has_ext 'c|h|cc|cpp|hpp|cxx'; then
     local m; m="$(list_files | grep -iE '\.(c|h|cc|cpp|hpp|cxx)$' | sed "s#^#$root/#" | tr '\n' '\0' \

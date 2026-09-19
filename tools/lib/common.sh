@@ -28,14 +28,18 @@ cache_dir() {
 
 _sum() { if have md5sum; then md5sum; else cksum; fi | cut -d' ' -f1; }
 
-# Fingerprint of repo state: HEAD + dirty tree. Any change => caches are stale.
+# Fingerprint of repo state: HEAD + dirty tree + tool code contents. Any
+# change => caches are stale. Tool edits must invalidate even when
+# .opencode/ is untracked: git status reports paths, never file contents.
 _repo_stamp() {
-  { if git rev-parse HEAD >/dev/null 2>&1; then
+  {
+    if git rev-parse HEAD >/dev/null 2>&1; then
       git rev-parse HEAD
-      git status --porcelain 2>/dev/null
+      git status --porcelain -uall 2>/dev/null
     else
       date +%Y%m%d%H   # hourly bucket for non-git trees
     fi
+    find "$(_tools_dir)" -type f -print0 | sort -z | xargs -0 md5sum
   } | _sum
 }
 
@@ -107,9 +111,17 @@ is_code() {
 }
 
 is_test_file() {
+  local p b
   case "$1" in
+    /*) p="$1" ;;
+    *)  p="/$1" ;;
+  esac
+  b="${p##*/}"
+  case "$b" in
     *_test.go|*_test.rs|*_test.py|test_*.py)            return 0 ;;
     *.test.ts|*.test.tsx|*.test.js|*.spec.ts|*.spec.js) return 0 ;;
+  esac
+  case "$p" in
     */tests/*|*/test/*|*/__tests__/*|*/spec/*)          return 0 ;;
   esac
   return 1

@@ -47,7 +47,7 @@ Reach for the smallest one that fits.
 | **Rules**     | `rules/*.md`             | Standing constraints, the craft discipline | automatic, by scope                       |
 | **Commands**  | `commands/*.md`          | One focused action                         | you type `/<name> <args>`                 |
 | **Skills**    | `skills/<name>/SKILL.md` | A capability that triggers on intent       | a trigger phrase, or by name              |
-| **Workflows** | `workflows/*.md`         | Multi-step playbooks                       | `/workflow:<name> <args>`                 |
+| **Workflows** | `commands/workflow/*.md` | Multi-step playbooks                       | `/workflow:<name> <args>`                 |
 | **Tools**     | `tools/*.sh`             | Scripts: digesters, the quality gate, etc. | Opencode runs `.opencode/tools/<name>.sh` |
 | **Agents**    | `agents/*.md`            | Specialist personas you delegate to        | by name, trigger, or from a workflow      |
 
@@ -159,7 +159,7 @@ These hold for everything here, even one-off tasks:
 ├── rules/*.md         always-on and tech-scoped constraints
 ├── commands/*.md      single-shot actions (/prompt, /quality, /refactor, …)
 ├── skills/<n>/SKILL.md  capabilities that trigger on intent (debug, write-test, api-endpoint, …)
-├── workflows/*.md     multi-phase playbooks (/workflow:deal, commit, migrate-db, ship, …)
+├── commands/workflow/*.md  multi-phase playbooks (/workflow:deal, commit, migrate-db, ship, …)
 ├── tools/*.sh         the scripts (digest, quality, watch, …) + lib/common.sh
 └── settings.json      optional committed config (permissions / env / hooks)
 ```
@@ -168,7 +168,7 @@ These hold for everything here, even one-off tasks:
 
 ## Extending it
 
-When you add something, match the existing examples: `commands/refactor.md`, `rules/refactor-common.md`, `skills/debug/SKILL.md`, `workflows/deal.md`, `tools/quality.sh`. Keep the voice short and direct, use real numbers, and skip filler words like "simply" or "just".
+When you add something, match the existing examples: `commands/refactor.md`, `rules/refactor-common.md`, `skills/debug/SKILL.md`, `commands/workflow/deal.md`, `tools/quality.sh`. Keep the voice short and direct, use real numbers, and skip filler words like "simply" or "just".
 
 - **Rules** — YAML frontmatter, then a `#` title and `##` sections. Two shapes, never mixed: universal (`description` + `alwaysApply: true`, no globs) or tech-scoped (`globs: ["**/*.ext"]` + `description`). Note: `/refactor <tech>` reads `rules/refactor-<tech>.md` by exact name, so spell the filename carefully.
 - **Commands** — frontmatter with one `description:` ending in `Usage: /<name> <args>`; the body opens with `<Label>: $ARGUMENTS` and uses phased `## Workflow` sections; abort if a required file is missing.

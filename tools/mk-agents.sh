@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # mk-agents.sh — compose or refresh the generated AGENTS.md at repo_root().
 # Every marker-wrapped section is DERIVED from the live harness files (never
-# hand-written tables): commands/, workflows/, skills/, agents/, rules/ and
+# hand-written tables): commands/ (incl. commands/workflow/), skills/, agents/, rules/ and
 # tools/*.sh + tools/README.md, plus tools/digest.sh + tools/facts.sh output.
 #
 # Locations are always relative to this tool's own directory (the _tools_dir
@@ -122,7 +122,7 @@ sec_workflows() {
   echo
   echo '| Workflow | Does |'
   echo '| --- | --- |'
-  for f in "$HARNESS"/workflows/*.md; do
+  for f in "$HARNESS"/commands/workflow/*.md; do
     [ -e "$f" ] || continue
     desc="$(fm_value "$f" description)"
     [ -n "$desc" ] || continue

@@ -170,7 +170,7 @@ read the file).
 | `write-test` | "write tests for", "add test coverage", "this needs tests" |
 | `debug` | "debug", "why is this failing", "what's wrong", "trace this", "root cause" |
 
-### 3.4 `workflows/` — reusable procedures (invoked `/workflow:<name>`)
+### 3.4 Workflows (`commands/workflow/`) — reusable procedures (invoked `/workflow:<name>`)
 
 | Workflow | Does |
 | --- | --- |
@@ -193,7 +193,7 @@ Scoped: `api-convention` (routes/handlers/API),
 
 - Orientation + conventions → **this file**.
 - Tools index → `tools/README.md`.
-- Reusable procedures → `workflows/<name>.md` — not hard-coded into these instructions.
+- Reusable procedures → `commands/workflow/<name>.md` — not hard-coded into these instructions.
 - Auto-firing capabilities → `skills/<name>/SKILL.md`.
 - One-shot actions → `commands/<name>.md`.
 - Durable constraints → `rules/*.md`.

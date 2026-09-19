@@ -63,6 +63,7 @@ These are small bash scripts that read the repo for you, so Opencode runs one co
 | -------------- | ---------------------------------------------------------------------- |
 | `digest.sh`    | "What am I working with?" — the start-of-task briefing                 |
 | `facts.sh`     | "How do I build, test, and lint? Which test framework is this?"        |
+| `mk-agents.sh` | "Compose/refresh the generated AGENTS.md from the live harness files"  |
 | `preflight.sh` | "Is the environment ready?" — env, secrets, toolchain, before building |
 | `codemap.sh`   | "Where does X live? What's heavy? What's untested?"                    |
 | `untested.sh`  | "What needs a test before I touch it?"                                 |
@@ -129,7 +130,7 @@ Language-specific rules load when you touch that language: `refactor-go`, `refac
 3. Describe a feature and let Opencode run the arc: `/prompt` → `/workflow:deal` (if risky) → `builder` → `/quality`.
 4. Land it behind your verification gate, green at the strict `quality-bar`.
 
-Everyday handles: `/prompt <request>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/commit`, `/bench <load|capacity|footprint|mem|startup>`, `/compat <feature-area>`, `/migrate <status|all|backend>`, `/workflow:deal <plan>`, `/workflow:commit [scope...]`, `/workflow:ship <major|minor|patch>`.
+Everyday handles: `/prompt <request>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/commit`, `/init-agents`, `/bench <load|capacity|footprint|mem|startup>`, `/compat <feature-area>`, `/migrate <status|all|backend>`, `/workflow:deal <plan>`, `/workflow:commit [scope...]`, `/workflow:ship <major|minor|patch>`.
 
 ---
 

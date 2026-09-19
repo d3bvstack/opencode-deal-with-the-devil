@@ -140,6 +140,7 @@ read the file).
 | --- | --- |
 | `digest.sh` | "What am I working with?" — the start-of-task briefing (composes the rest) |
 | `facts.sh` | "How do I build/test/lint? Which gates and test frameworks exist?" |
+| `mk-agents.sh` | "Compose/refresh the generated AGENTS.md index from the live harness files" |
 | `preflight.sh` | "Is the environment ready?" — `.env` / secrets / toolchain before building |
 | `codemap.sh` | "Where does X live? What's heavy? What's untested?" |
 | `untested.sh` | "What needs a test before I touch it?" (the TDD worklist) |
@@ -155,6 +156,7 @@ read the file).
 | `/bench [load\|capacity\|footprint\|mem\|startup]` | comparative benchmarks vs the reference baseline, flag regressions |
 | `/commit [type:(scope): hint]` | commit all pending changes as one Conventional Commits message; deep pass → `/workflow:commit` |
 | `/compat [feature-area]` | feature-parity comparison vs the reference; deep pass → `/workflow:compat-audit` |
+| `/init-agents` | compose/refresh the generated AGENTS.md index from the live harness files |
 | `/migrate <status\|all\|backend>` | run/inspect migrations across backends; author via `/workflow:migrate-db` |
 | `/prompt <rough request>` | turn a rough request into a precise, fact-grounded spec the builder can execute |
 | `/quality [--no-audit] [--with-tests]` | run every strict gate, report PASS/FAIL/SKIP |

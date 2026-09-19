@@ -153,6 +153,7 @@ read the file).
 | Command | Does |
 | --- | --- |
 | `/bench [load\|capacity\|footprint\|mem\|startup]` | comparative benchmarks vs the reference baseline, flag regressions |
+| `/commit [type:(scope): hint]` | commit all pending changes as one Conventional Commits message; deep pass → `/workflow:commit` |
 | `/compat [feature-area]` | feature-parity comparison vs the reference; deep pass → `/workflow:compat-audit` |
 | `/migrate <status\|all\|backend>` | run/inspect migrations across backends; author via `/workflow:migrate-db` |
 | `/prompt <rough request>` | turn a rough request into a precise, fact-grounded spec the builder can execute |
@@ -171,6 +172,7 @@ read the file).
 
 | Workflow | Does |
 | --- | --- |
+| `commit [scope...]` | organize working-tree changes into logical commits behind the `reviewer` gate; push stays human-gated |
 | `deal` | submit a risky plan to the `devil` for a verdict **before** code exists (`rules/risk.md`) |
 | `migrate-db` | author and land a new DB migration safely |
 | `compat-audit` | endpoint-by-endpoint behavioral parity audit against the reference spec |

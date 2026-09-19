@@ -129,7 +129,7 @@ Language-specific rules load when you touch that language: `refactor-go`, `refac
 3. Describe a feature and let Opencode run the arc: `/prompt` → `/workflow:deal` (if risky) → `builder` → `/quality`.
 4. Land it behind your verification gate, green at the strict `quality-bar`.
 
-Everyday handles: `/prompt <request>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/bench <load|capacity|footprint|mem|startup>`, `/compat <feature-area>`, `/migrate <status|all|backend>`, `/workflow:deal <plan>`, `/workflow:ship <major|minor|patch>`.
+Everyday handles: `/prompt <request>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/commit`, `/bench <load|capacity|footprint|mem|startup>`, `/compat <feature-area>`, `/migrate <status|all|backend>`, `/workflow:deal <plan>`, `/workflow:commit [scope...]`, `/workflow:ship <major|minor|patch>`.
 
 ---
 
@@ -158,7 +158,7 @@ These hold for everything here, even one-off tasks:
 ├── rules/*.md         always-on and tech-scoped constraints
 ├── commands/*.md      single-shot actions (/prompt, /quality, /refactor, …)
 ├── skills/<n>/SKILL.md  capabilities that trigger on intent (debug, write-test, api-endpoint, …)
-├── workflows/*.md     multi-phase playbooks (/workflow:deal, migrate-db, ship, …)
+├── workflows/*.md     multi-phase playbooks (/workflow:deal, commit, migrate-db, ship, …)
 ├── tools/*.sh         the scripts (digest, quality, watch, …) + lib/common.sh
 └── settings.json      optional committed config (permissions / env / hooks)
 ```

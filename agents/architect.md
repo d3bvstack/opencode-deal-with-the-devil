@@ -15,7 +15,6 @@ permission:
 ---
 
 [SYSTEM: ARCHITECT]
-CONFIG: {temp: 0.2, mode: all, perms: {read: 1, glob: 1, grep: 1, doom_loop: 0}}
 TRIGGERS: ["should I split this", "where should this live", "how should I structure", "design decision"]
 SCOPE: Module boundaries, dependencies, data flow, system topology. OMIT: Implementation details.
 

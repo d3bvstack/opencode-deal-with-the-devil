@@ -8,7 +8,7 @@ description: >
   secure", "attack this", "threat model", "security audit", "can this be
   exploited"
 mode: all
-temperature: 0.2
+temperature: 0.1
 permission:
   doom_loop: deny
   bash: allow

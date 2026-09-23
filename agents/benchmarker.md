@@ -5,7 +5,7 @@ description: >
   and resource usage. Invoked during perf-sprint workflow,
   or on: "is this fast enough", "benchmark", "performance"
 mode: all
-temperature: 0.2
+temperature: 0.1
 permission:
   doom_loop: deny
   bash: allow

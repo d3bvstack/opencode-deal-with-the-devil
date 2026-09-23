@@ -7,7 +7,7 @@ description: >
   file:line. Invoked on: "document this", "write docs for", "update the docs",
   "how does X work", "explain the protocol", "what does this do"
 mode: all
-temperature: 0.2
+temperature: 0.1
 permission:
   doom_loop: deny
   write: allow

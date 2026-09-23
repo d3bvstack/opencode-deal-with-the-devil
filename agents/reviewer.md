@@ -7,7 +7,7 @@ description: >
   on: "review this", "is this ready to merge", "approve or reject", "check my
   PR", "gate this change"
 mode: all
-temperature: 0.2
+temperature: 0.1
 permission:
   doom_loop: deny
   bash: allow

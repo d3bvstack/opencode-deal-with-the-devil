@@ -1,0 +1,64 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": true,
+  "permission": {
+    "bash": "ask",
+    "edit": "allow",
+    "read": "allow",
+    "grep": "allow",
+    "glob": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "todowrite": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "question": "allow",
+    "github_*": "deny"
+  },
+  "mcp": {
+    // Chrome DevTools MCP
+    // Docs: https://github.com/ChromeDevTools/chrome-devtools-mcp/
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--slim",
+        "--headless"
+      ],
+      "enabled": true
+    },
+    // Next.js MCP
+    // https://nextjs.org/docs/app/guides/mcp
+    "next-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "next-devtools-mcp@latest"],
+      "enabled": true
+    },
+    // Playwright MCP
+    // Docs: https://playwright.dev/docs/getting-started-mcp
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest"]
+    },
+    // Context7 MCP
+    // Docs: https://github.com/upstash/context7
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    //Github MCP
+    // Docs: https://github.com/github/github-mcp-server
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "oauth": true,
+      "headers": {
+        "X-MCP-Toolsets": "",
+        "X-MCP-Tools": "get_me,get_repository_tree,get_commit,get_file_contents,push_files,list_issues,issue_read,create_pull_request,github_support_docs_search ",
+      }
+    }
+  }
+}

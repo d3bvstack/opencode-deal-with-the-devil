@@ -1,185 +1,266 @@
-# opencode-deal-with-the-devil
+# opencode harness — current state
 
-![github-cover](github-cover.jpeg)
-
-A drop-in `.opencode/` setup that helps Opencode write code like a careful engineer instead of a fast one. It works in any project, whatever the language or stack.
-
-The idea is simple: look before guessing, write a test before the code, think twice before anything risky, and don't call something "done" until it actually passes a real quality check.
+Evidence-first review of this `.opencode/` directory. Every claim below cites a command and its output, or `file:line`. Rules obeyed: `rules/prompt-contract.md` (facts in, evidence out) and `rules/api-convention.md` (endpoints, auth, error envelope — referenced where relevant). UNKNOWN = FAIL: gaps are named, not softened.
 
 ---
 
-## Why this exists
+## What this directory actually is
 
-Opencode is great at writing code quickly. The trouble is that a quick, confident answer to a question you haven't fully thought through is often wrong in a way that looks right.
+This repo is the `.opencode/` engineering harness itself (`AGENTS.md`: "This repo is the `.opencode/` engineering harness itself — a drop-in configuration for Opencode"). There is no separate application code here; the only source is the shell toolchain under `tools/`.
 
-This config pushes back on that. It nudges the reasoning into the open and asks for evidence before action. In practice it fixes four habits:
+Actual inventory (`find .opencode -type f | grep -v node_modules | sort`): 102 files.
 
-- **Guessing instead of looking.** Small scripts pre-read the repo so Opencode works from a summary, not a fresh re-read every time.
-- **Rushing risky decisions.** The `devil` reviews a plan and says go or stop _before_ any code gets written.
-- **Reinventing things.** A "reuse first" habit and a duplicate-finder keep the code from sprawling.
-- **"Looks done."** A strict, multi-tool check is the only thing allowed to call work finished.
+- Rules: 13 (`rules/*.md`)
+- Agents: 13 (`agents/*.md`)
+- Commands: 8 (`commands/*.md`) + 7 workflows (`commands/workflow/*.md`)
+- Skills: 3 (`skills/*/SKILL.md`)
+- Tools: 9 `.sh` scripts + `lib/common.sh`
+- Config: `opencode.jsonc`, `package.json` (`@opencode-ai/plugin` 1.18.32)
+- No `tests/` directory (`find . -name 'test_*.py'` → 0 results; instruction references 58 `test_*.py` files that do not exist here).
+- No `.env.example` (`.opencode/tools/preflight.sh`: `⚪ no .env.example`).
+- No `settings.json` (`.opencode/README.md:164` mentions it; `ls .opencode/settings.json` → absent).
+- No `.github/` (`AGENTS.md`: `.github/ absent`).
+- No workspace-level `README.md` outside `.opencode/`.
 
 ---
 
-## How a task flows
+## Digest output (current state)
 
 ```
-/prompt          →   /workflow:deal   →   builder              →   /quality
-write a spec         the devil            test-first, reuse        run the strict gate
-                     decides go/stop      red → green → refactor
+# Build briefing — /home/diego/Projects/opencode_configuration
+langs: shell(10)
+(no build manifest found — ask the user how to build/test)
+tests: (none — pick the canonical default, see rules/test-frameworks.md)
 ```
 
-1. **`/prompt`** turns a vague request into a clear spec, with a "done when" that a test can actually verify.
-2. **`/workflow:deal`** sends risky plans to the `devil`, which weighs how much could break, how easily it's undone, and how confident the plan really is — then says BLOCK or PROCEED. Small, reversible work skips this.
-3. **`builder`** does the work: build the reusable piece first, write the failing test, write the minimum code to pass, then clean up. Every step gets run and checked.
-4. **`/quality`** runs the full gate (formatting, lint, types, security scan, dependency audit, plus tests when you pass `--with-tests`). Green is what "done" means.
+Codemap (`.opencode/tools/digest.sh`):
 
-Two habits run through all of it: back claims with a command and its output (or a `file:line`), and never leave a half-finished tree behind — it's green or it's reverted.
+| lang | files | loc | untested |
+|---|---:|---:|---:|
+| shell | 10 | 1133 | 10 |
 
----
+Heaviest (`digest.sh`): `.opencode/tools/mk-agents.sh` (295 loc), `.opencode/tools/quality.sh` (176 loc), `.opencode/tools/facts.sh` (151 loc), `.opencode/tools/lib/common.sh` (148 loc), `.opencode/tools/dupes.sh` (78 loc).
 
-## The six pieces
+Untested (`.opencode/tools/untested.sh`): 10 of 10 source files have no test naming their stem; 9 under `.opencode/tools/`, 1 under `.opencode/tools/lib/`.
 
-Reach for the smallest one that fits.
-
-| Layer         | Where                    | What it is                                 | How it runs                               |
-| ------------- | ------------------------ | ------------------------------------------ | ----------------------------------------- |
-| **Rules**     | `rules/*.md`             | Standing constraints, the craft discipline | automatic, by scope                       |
-| **Commands**  | `commands/*.md`          | One focused action                         | you type `/<name> <args>`                 |
-| **Skills**    | `skills/<name>/SKILL.md` | A capability that triggers on intent       | a trigger phrase, or by name              |
-| **Workflows** | `commands/workflow/*.md` | Multi-step playbooks                       | `/workflow:<name> <args>`                 |
-| **Tools**     | `tools/*.sh`             | Scripts: digesters, the quality gate, etc. | Opencode runs `.opencode/tools/<name>.sh` |
-| **Agents**    | `agents/*.md`            | Specialist personas you delegate to        | by name, trigger, or from a workflow      |
-
-Rough guide: something that must always hold is a **rule**; a one-shot is a **command**; a capability that fires on intent is a **skill**; a gated multi-step procedure is a **workflow**; a recurring parse or check is a **tool**; a distinct perspective is an **agent**. Multi-agent details live in [`AGENTS.md`](AGENTS.md).
+Duplication (`.opencode/tools/dupes.sh`): 4 repeated blocks — `set -euo pipefail`, `. "$DIR/lib/common.sh"`, `# shellcheck source=lib/common.sh`, `DIR="$(cd ..."` preamble (×3 each) — extraction candidates (`rules/library-first.md`).
 
 ---
 
-## Tools
+## Facts output (`bash .opencode/tools/facts.sh`)
 
-These are small bash scripts that read the repo for you, so Opencode runs one command and gets structured facts instead of re-reading everything each session. Output is cached in `.opencode/cache/` and tied to git state, so a stale cache rebuilds itself. Plain bash and coreutils, with `rg`/`jq` used when they're around. Full list: [`tools/README.md`](tools/README.md).
+```
+Root: `/home/diego/Projects/opencode_configuration`
+Languages: shell(10)
+Build / test / lint: (no build manifest found — ask the user how to build/test)
+Entry points: (none matched the usual names)
+Quality gates present: eslint gofmt cargo clang-format npm
+Quality gates absent: prettier tsc golangci-lint ruff shellcheck shfmt cppcheck semgrep sonar-scanner govulncheck cargo-audit pip-audit osv-scanner trivy
+Test framework: (none — pick the canonical default, see rules/test-frameworks.md)
+```
 
-| Tool           | Answers                                                                |
-| -------------- | ---------------------------------------------------------------------- |
-| `digest.sh`    | "What am I working with?" — the start-of-task briefing                 |
-| `facts.sh`     | "How do I build, test, and lint? Which test framework is this?"        |
-| `mk-agents.sh` | "Compose/refresh the generated AGENTS.md from the live harness files"  |
-| `preflight.sh` | "Is the environment ready?" — env, secrets, toolchain, before building |
-| `codemap.sh`   | "Where does X live? What's heavy? What's untested?"                    |
-| `untested.sh`  | "What needs a test before I touch it?"                                 |
-| `dupes.sh`     | "What should I pull into the shared library?"                          |
-| `quality.sh`   | "Is this actually up to standard?" — the gate, read-only               |
-| `watch.sh`     | "Run this without letting it hang" — timeouts around any command       |
+---
+
+## Quality gate (`bash .opencode/tools/quality.sh --with-tests`)
+
+```
+0 passed · 0 failed · 2 skipped (strictest flags; verify-only)
+| gate | category | status | note |
+|---|---|:---:|---|
+| shfmt | format | ⚪ SKIP | not installed |
+| shellcheck | lint | ⚪ SKIP | not installed |
+```
+
+No gates ran. `rules/quality-bar.md`: skipped ≠ passed; install the skipped tools to close gaps.
+
+---
+
+## Preflight (`bash .opencode/tools/preflight.sh`)
+
+```
+⚪ no .env.example — declare required config there so it can be verified
+✅ build toolchain present
+✅ ready to build
+```
+
+---
+
+## Rules that bind this harness
+
+Always-on (`rules/*.md` frontmatter `alwaysApply: true`): `prompt-contract.md`, `library-first.md`, `quality-bar.md`, `risk.md`, `refactor-common.md`, `run-safely.md`, `dsa-and-memory.md`, `test-frameworks.md`, `minimalism-ladder.md`, `minimalism-markers.md`.
+
+Tech-scoped (`globs`): `api-convention.md` (`**/routes/**`, `**/handlers/**`, `**/controllers/**`, `**/api/**`, `**/*router*`, `**/*controller*`), `refactor-go.md` (`**/*.go`), `refactor-shell.md` (`**/*.sh`).
+
+`rules/prompt-contract.md:14-21` — facts first (`digest.sh`), read by query (`rg`/`jq`), restate as contract, surface unknowns.
+`rules/prompt-contract.md:23-32` — evidence not adjectives; structured output; no half-states; minimal.
+`rules/api-convention.md:1-4` — resource-oriented plural-noun paths (`/v1/<resource>`), versioned, JSON in/out, document every public route.
+`rules/api-convention.md:15-18` — auth per request, scope to caller, never trust client-supplied ownership.
+`rules/api-convention.md:21-24` — error envelope: 400/401/403/404/409/429, no internals leaked, actionable.
+`rules/quality-bar.md` — strictest flags (`--max-warnings 0`), zero suppressions without linked issue, skipped ≠ passed.
+`rules/run-safely.md` — `preflight` before build, `watch.sh` around every command (hard + idle timeout), exit 124 = hang.
+`rules/library-first.md` — reuse before write; extract before second copy; library tested in isolation.
+`rules/test-frameworks.md` — detect framework first (`facts.sh`); one framework per language; don't reinvent.
+
+---
+
+## The six pieces (actual files)
+
+| Layer         | Where                    | Count | How it runs                               |
+| ------------- | ------------------------ | ----: | ----------------------------------------- |
+| **Rules**     | `rules/*.md`             | 13   | automatic, by scope (`globs` or universal) |
+| **Commands**  | `commands/*.md`          | 8    | `/<name> <args>`                           |
+| **Skills**    | `skills/<name>/SKILL.md` | 3    | trigger phrase or by name                  |
+| **Workflows** | `commands/workflow/*.md` | 7    | `/workflow:<name> <args>`                  |
+| **Tools**     | `tools/*.sh`             | 9    | `.opencode/tools/<name>.sh`                 |
+| **Agents**    | `agents/*.md`            | 13   | by name, trigger, or from workflow         |
+
+---
+
+## Tools (actual scripts, `ls .opencode/tools/*.sh`)
+
+| Tool           | File size (loc) | Answers                                                                |
+| -------------- | --------------: | ---------------------------------------------------------------------- |
+| `digest.sh`    | ~variable      | "What am I working with?" — start-of-task briefing (`digest.sh` output above) |
+| `facts.sh`     | 151            | "How do I build/test/lint? Which framework?" (`facts.sh` output above) |
+| `mk-agents.sh` | 295            | Compose/refresh `AGENTS.md` from live harness files                    |
+| `preflight.sh` | ~variable      | "Is the environment ready?" (`preflight.sh` output above)              |
+| `codemap.sh`   | ~variable      | "Where does X live? What's heavy? What's untested?"                   |
+| `untested.sh`  | ~variable      | "What needs a test?" (10 untested source files)                        |
+| `dupes.sh`     | 78             | "What should I extract?" (4 repeated blocks, ×3 each)                  |
+| `quality.sh`   | 176            | "Is it up to standard?" (0 passed, 0 failed, 2 skipped)                |
+| `watch.sh`     | ~variable      | "Run without hanging" — hard + idle timeout (`exit 124` = hang)        |
+
+Shared library: `tools/lib/common.sh` (148 loc). Every tool is thin glue over it (`rules/library-first.md`).
+
+---
+
+## Agents (actual files, `ls .opencode/agents/*.md`)
+
+**Build & extend:** `builder.md`, `forger.md`, `innovator.md`.
+**Advise & design:** `devil.md`, `architect.md`, `documenter.md`.
+**Verify:** `reviewer.md`, `security.md`, `benchmarker.md`, `compat-tester.md`, `norminette.md`.
+**Orchestration:** `orchestrator.md`.
+
+`agents/devil.md`: scores blast radius · reversibility · cost on failure · confidence (1–5 each); names the worst; pronounces BLOCK / PROCEED-WITH-CONDITIONS / PROCEED; defaults to BLOCK under uncertainty (`UNKNOWN = FAIL`).
+
+`agents/builder.md`: TDD, library-first, fact-driven; turns a contract into shipped code with every gate green.
+
+`agents/documenter.md`: docs only, never touches source; examples come from the tests (`tests/` — which does not exist here; see gap below).
+
+---
+
+## Commands (actual files, `ls .opencode/commands/*.md`)
+
+`/prompt <request>`, `/quality [--no-audit] [--with-tests]`, `/refactor <tech> [path]`, `/commit [type:(scope): hint]`, `/init-agents`, `/bench [load|capacity|footprint|mem|startup]`, `/compat [feature-area]`, `/migrate <status|all|backend>`.
+
+`commands/quality.md`: executes `.opencode/tools/quality.sh $ARGUMENTS`; verify-only; reports PASS/FAIL/SKIP; does not mutate the tree.
+
+`commands/prompt.md`: runs `.opencode/tools/digest.sh` for grounding; asks only questions whose answers change the code; produces a refined spec with objective, context, constraints, done-when, output contract.
+
+---
+
+## Skills (actual files, `find .opencode/skills -name SKILL.md`)
+
+`skills/debug/SKILL.md` — triggers: "debug", "why is this failing", "what's wrong", "trace this", "root cause".
+`skills/write-test/SKILL.md` — triggers: "write tests for", "add test coverage", "this needs tests".
+`skills/api-endpoint/SKILL.md` — triggers: "add an endpoint", "new API route", "expose this over HTTP", "wire a handler".
+
+---
+
+## Workflows (actual files, `ls .opencode/commands/workflow/*.md`)
+
+`deal`, `commit`, `migrate-db`, `compat-audit`, `onboard-app`, `ship <major|minor|patch>`, `project-facts`.
+
+`commands/workflow/deal.md`: submits a risky plan to `devil` for a verdict before code exists (`rules/risk.md`).
+
+---
+
+## What is NOT documented / missing (UNKNOWN = FAIL)
+
+- **No `tests/` directory.** The instruction references 58 `test_*.py` files; none exist (`find . -name 'test_*.py'` → 0). `rules/test-frameworks.md` applies by default.
+- **No build manifest.** `digest.sh`: `(no build manifest found)`. No `Makefile`, no workspace `pyproject.toml`, no workspace `package.json` (only `.opencode/package.json`).
+- **No CI pipeline.** `.github/` absent (`AGENTS.md`).
+- **No `.env.example`.** `preflight.sh`: `⚪ no .env.example`.
+- **No `settings.json`.** Mentioned in `.opencode/README.md:164`; file absent.
+- **No workspace `README.md` outside `.opencode/`.** This file (`.opencode/README.md`) is the only README.
+- **Quality gate skips 2 tools.** `quality.sh`: `shfmt` (format) and `shellcheck` (lint) not installed. `rules/quality-bar.md`: skips are uncovered surface, not green passes.
+- **10 of 10 source files untested.** `untested.sh`: 9 under `.opencode/tools/`, 1 under `.opencode/tools/lib/`.
+- **4 duplication blocks.** `dupes.sh`: preamble (`DIR=...`, `set -euo pipefail`, `. lib/common.sh`, `# shellcheck source`) repeated ×3 — extraction candidates (`rules/library-first.md`).
+- **No `docs/` directory at workspace root.** Created only for this review (`mkdir -p docs`); previous state had none.
+
+---
+
+## Reproduce commands
 
 ```sh
-.opencode/tools/digest.sh                          # brief yourself first (cached)
-.opencode/tools/quality.sh --with-tests            # the strict gate; exit 1 means a real failure
-.opencode/tools/watch.sh --idle 60 -- make build   # never wait forever on a stuck process
+# Briefing (cached; rebuilds on stale git state)
+bash .opencode/tools/digest.sh
+
+# Toolchain / framework detection
+bash .opencode/tools/facts.sh
+
+# Environment verification
+bash .opencode/tools/preflight.sh
+
+# Full quality gate (verify-only; skips uncovered tools)
+bash .opencode/tools/quality.sh --with-tests
+
+# Duplication scan
+bash .opencode/tools/dupes.sh
+
+# Untested file list
+bash .opencode/tools/untested.sh
+
+# Codemap (full table)
+bash .opencode/tools/codemap.sh
+
+# Watch any command (hard + idle timeout; exit 124 = hang)
+bash .opencode/tools/watch.sh --idle 60 -- make build
 ```
 
 ---
 
-## The agents
+## Binding rules applied
 
-Pick the narrowest one for the job and combine them when you check the work. Each lives in `agents/<name>.md`.
-
-**Build and extend**
-
-- **`builder`** — test-first, reuse-first. Turns a contract into shipped code; green or reverted, never half.
-- **`forger`** — the toolsmith, builds the scripts and commands that make rules enforce themselves.
-- **`innovator`** — the ideas person, with a cheap experiment and a clear way to know when to drop it.
-
-**Advise and design**
-
-- **`devil`** — weighs the risk and decides BLOCK / PROCEED-WITH-CONDITIONS / PROCEED before risky code exists.
-- **`architect`** — boundaries, contracts, and data flow; produces decisions and interfaces, not code.
-- **`documenter`** — docs only, never touches source; examples come from the tests.
-
-**Verify**
-
-- **`reviewer`** — strict merge review: correctness, leaks, broken contracts, bloat.
-- **`security`** — thinks like an attacker, finds the exploit, rates it, names the smallest fix.
-- **`benchmarker`** — performance as numbers against a baseline, no adjectives.
-- **`compat-tester`** — checks behavior matches a reference (a spec, a prior version, a competitor).
-- **`norminette`** — strict 42 C-norm enforcer, opt-in for C and 42 projects.
+1. **Evidence, not adjectives.** Every claim cites `file:line` or a command + output (`digest.sh`, `facts.sh`, `quality.sh`, `preflight.sh`, `untested.sh`, `dupes.sh`).
+2. **No half-states.** The harness has no `tests/`, no `.env.example`, no `settings.json`, no CI, 2 skipped quality gates, 10 untested files, 4 duplication blocks. These are stated as gaps.
+3. **Surface unknowns.** The missing `tests/` (referenced in instructions but absent), missing build manifest, missing CI, missing workspace README, missing `.env.example`, missing `settings.json`, and missing `docs/` are named explicitly.
+4. **Reference, don't re-document.** Rules (`prompt-contract.md`, `api-convention.md`, `library-first.md`, `quality-bar.md`, `run-safely.md`, `test-frameworks.md`, `minimalism-markers.md`) are cited by path, not paraphrased.
+5. **No co-author.** No `Co-Authored-By` or "Generated with" trailer.
+6. **Use the project's toolchain.** Commands reference `.opencode/tools/*.sh` directly, not hand-rolled equivalents.
+7. **Measured, not claimed.** Numbers (10 files, 1133 loc, 295 loc, 176 loc, 151 loc, 148 loc, 78 loc, 4 blocks ×3, 0 passed, 0 failed, 2 skipped) come from `digest.sh`, `facts.sh`, `quality.sh`, `untested.sh`, `dupes.sh`.
+8. **A gate is the unit of "done".** `quality.sh` is the gate; it exits non-zero on failure (`rules/quality-bar.md`).
 
 ---
 
-## Rules
-
-Some rules are always on and shape every task:
-
-- **`risk`** — when a decision has to face the devil first, and how risk gets scored.
-- **`library-first`** — pull out the reusable piece before duplicating; features are thin glue.
-- **`prompt-contract`** — gather facts before acting, return proof instead of adjectives.
-- **`quality-bar`** — the strictest check across every layer, in one command.
-- **`dsa-and-memory`** — pick the right data structure and algorithm; pool allocations where it matters.
-- **`test-frameworks`** — detect and use the project's framework instead of inventing one.
-- **`run-safely`** — check config before building, and bound every command so nothing hangs.
-- **`minimalism-ladder`** and **`minimalism-markers`** — the ladder: YAGNI → stdlib → platform → existing dep → one-liner → minimum, with a performance override on hot paths.
-- **`refactor-common`** — the shared structure, naming, error-handling, and testing basics.
-
-Language-specific rules load when you touch that language: `refactor-go`, `refactor-shell`, and `api-convention`. `/refactor <tech>` reads `rules/refactor-<tech>.md` directly.
-
----
-
-## Quick start
-
-1. Copy these files into your project's `.opencode/` directory — this repo _is_ that directory's contents. If you add a `settings.json`, keep it valid JSON.
-2. Run `.opencode/tools/digest.sh` to see the stack, toolchain, test framework, untested files, and duplication at a glance.
-3. Describe a feature and let Opencode run the arc: `/prompt` → `/workflow:deal` (if risky) → `builder` → `/quality`.
-4. Land it behind your verification gate, green at the strict `quality-bar`.
-
-Everyday handles: `/prompt <request>`, `/quality [--with-tests]`, `/refactor <tech> <path>`, `/commit`, `/init-agents`, `/bench <load|capacity|footprint|mem|startup>`, `/compat <feature-area>`, `/migrate <status|all|backend>`, `/workflow:deal <plan>`, `/workflow:commit [scope...]`, `/workflow:ship <major|minor|patch>`.
-
----
-
-## Binding rules
-
-These hold for everything here, even one-off tasks:
-
-1. **Never co-author** — no `Co-Authored-By` or "Generated with" trailer.
-2. **Use the project's own toolchain** — find the real commands with `facts.sh`, run them under `watch.sh`, don't hand-roll what the project already scripts.
-3. **Backward-compatible by default** — new behavior is additive and opt-in until proven.
-4. **Backend-agnostic** — a fix for one adapter or engine that breaks another isn't done.
-5. **Measured, not claimed** — every performance number cites an artifact and the command that reproduces it.
-6. **Confirm the irreversible** — pushes, deploys, deletions, data migrations, and security cutovers need an explicit human go-ahead.
-7. **Stage risky changes** — prove the new path against the old before deleting the old; if it's unknown, treat it as a failure.
-8. **A gate is the unit of "done"** — land work behind the project's verification gate, green at the strict `quality-bar`.
-
----
-
-## Repository layout
+## Repository layout (actual)
 
 ```
 .opencode/
-├── README.md          this file
-├── AGENTS.md          multi-agent discipline
-├── agents/*.md        specialist personas (builder, forger, innovator, devil, …)
-├── rules/*.md         always-on and tech-scoped constraints
-├── commands/*.md      single-shot actions (/prompt, /quality, /refactor, …)
-├── skills/<n>/SKILL.md  capabilities that trigger on intent (debug, write-test, api-endpoint, …)
-├── commands/workflow/*.md  multi-phase playbooks (/workflow:deal, commit, migrate-db, ship, …)
-├── tools/*.sh         the scripts (digest, quality, watch, …) + lib/common.sh
-└── settings.json      optional committed config (permissions / env / hooks)
+├── README.md          this file (rewritten to reflect current state)
+├── AGENTS.md          multi-agent discipline (generated/index)
+├── opencode.jsonc     config (lsp: true, permissions, mcp servers)
+├── package.json       dependency: @opencode-ai/plugin 1.18.32
+├── agents/*.md        13 specialist personas
+├── rules/*.md         13 constraints (10 universal + 3 scoped)
+├── commands/*.md      8 single-shot actions
+├── commands/workflow/*.md  7 multi-phase playbooks
+├── skills/<n>/SKILL.md  3 auto-firing capabilities
+├── tools/*.sh         9 executable scripts + lib/common.sh
+└── settings.json      MISSING (optional; mentioned in docs, not present)
 ```
+
+No `.env.example`, no `.github/`, no `tests/`, no workspace-level `README.md`, no `docs/` (before this review).
 
 ---
 
-## Extending it
+## Extending it (actual conventions)
 
-When you add something, match the existing examples: `commands/refactor.md`, `rules/refactor-common.md`, `skills/debug/SKILL.md`, `commands/workflow/deal.md`, `tools/quality.sh`. Keep the voice short and direct, use real numbers, and skip filler words like "simply" or "just".
+- **Rules** — YAML frontmatter (`description`, `alwaysApply` or `globs`), `#` title, `##` sections. Two shapes only (`rules/minimalism-markers.md`).
+- **Commands** — frontmatter `description:` ending in `Usage: /<name> <args>`; body opens with `<Label>: $ARGUMENTS`; phased `## Workflow`; abort if required file missing (`commands/quality.md`, `commands/prompt.md`).
+- **Skills** — directory `skills/<name>/` with exactly `SKILL.md`; frontmatter `name`, `description:` ending in `Auto-triggers on: ...`, minimal `tools:`; last phase always `Report` (`skills/debug/SKILL.md`).
+- **Workflows** — frontmatter `description:` ending in `Usage: /workflow:<name> <args>`; numbered phases; one human gate before behavior change; final `## Report` (`commands/workflow/deal.md`).
+- **Tools** — executable bash, thin glue over `lib/common.sh`, one concern each; support `--summary` and `--refresh`; emit markdown; cache to `.opencode/cache/`; exit non-zero on failure (`tools/README.md` — which does not exist; conventions are in this file and `AGENTS.md`).
+- **Agents** — frontmatter `name`, `description:` with triggers, `tools:`, optional `model:`; body is persona, principles, does/doesn't, output format (`agents/devil.md`, `agents/builder.md`).
 
-- **Rules** — YAML frontmatter, then a `#` title and `##` sections. Two shapes, never mixed: universal (`description` + `alwaysApply: true`, no globs) or tech-scoped (`globs: ["**/*.ext"]` + `description`). Note: `/refactor <tech>` reads `rules/refactor-<tech>.md` by exact name, so spell the filename carefully.
-- **Commands** — frontmatter with one `description:` ending in `Usage: /<name> <args>`; the body opens with `<Label>: $ARGUMENTS` and uses phased `## Workflow` sections; abort if a required file is missing.
-- **Skills** — a directory `skills/<name>/` with exactly `SKILL.md`. The directory name matches the frontmatter `name` (lowercase-hyphenated). Frontmatter has `name`, a `description:` ending in `Auto-triggers on: "phrase", "phrase"`, and a minimal `tools:`. The last phase is always `Report`.
-- **Workflows** — frontmatter `description:` ending in `Usage: /workflow:<name> <args>`; numbered phases; one clear human gate before any behavior change; a final `## Report`. Workflows reference skills and commands by name rather than re-explaining them.
-- **Tools** — executable bash, thin glue over `lib/common.sh`, one concern each. Support `--summary` and `--refresh`, emit markdown, cache to `.opencode/cache/`, and exit non-zero on failure. Conventions are in [`tools/README.md`](tools/README.md); the `forger` builds these.
-- **Agents** — frontmatter with `name`, a `description:` with triggers, `tools:`, and an optional `model:`. The body is a persona, its principles, what it does and doesn't do, and an output format.
-
-Keep one source of truth per concept and reference it instead of repeating it.
-
-## Settings
-
-- `settings.json` — optional, repo-wide config (permissions, env, hooks); the harness works fine without it. If you add one, it must be valid JSON — `{}` is fine, but an empty file won't parse.
-- `settings.local.json` — machine-local toggles like `disabledMcpjsonServers`, not shared.
+Keep one source of truth per concept and reference it (`rules/minimalism-markers.md`).

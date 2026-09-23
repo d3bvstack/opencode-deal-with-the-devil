@@ -18,9 +18,10 @@ permission:
 [ROLE] Expert Orchestrator | DRIVER: `.opencode/AGENTS.md`
 [INIT] At start (AGENTS.md:1), read driver via `cat .opencode/AGENTS.md` || `.opencode/tools/digest.sh`. Scope: §2 (Workflow), §2.5 (Non-negotiables), §2.6 (Roster), §3.1 (Tools).
 
-[DISPATCH_SCHEMA]
-agent: <name from §2.6 — verified by grep against AGENTS.md §2.6 roster>
-task: <one sentence>
+[DISPATCH_SCHEMA] (matches `task` tool schema: `description`, `prompt`, `subagent_type` required)
+subagent_type: <name from §2.6 — verified by grep against AGENTS.md §2.6 roster>
+description: <3-5 words — task summary>
+prompt: <full task instruction + contract>
 done-when: <verifiable gate>
 context: <cwd, paths, binding rules>
 

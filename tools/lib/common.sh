@@ -51,16 +51,26 @@ cache_fresh() {
 
 # emit_cached <cache-basename> <builder-fn> [args...]
 # Prints the cache when fresh (unless REFRESH=1); otherwise rebuilds + caches.
+# Propagates the builder exit code on both paths (stored in <cache>.rc) so a
+# failing builder (e.g. missing-config full mode, rc=1) still prints its
+# message to the caller and rebuild agrees with the cached read.
 emit_cached() {
   local name="$1"; shift
   local builder="$1"; shift
   local cache; cache="$(cache_dir)/$name"
+  local rc=0
   if [ "${REFRESH:-0}" != "1" ] && cache_fresh "$cache"; then
-    cat "$cache"; return 0
+    cat "$cache"
+    rc="$(cat "$cache.rc" 2>/dev/null || printf '0')"
+    case "$rc" in ''|*[!0-9]*) rc=0 ;; esac
+    return "$rc"
   fi
-  "$builder" "$@" >"$cache"
+  rc=0
+  "$builder" "$@" >"$cache" || rc=$?
+  printf '%s\n' "$rc" >"$cache.rc"
   _repo_stamp >"$cache.stamp"
   cat "$cache"
+  return "$rc"
 }
 
 # --- source inventory -------------------------------------------------------

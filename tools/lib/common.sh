@@ -156,3 +156,21 @@ symbols_of() {
 }
 
 symbol_count() { symbols_of "$1" | grep -c . || true; }
+
+# --- JSONC parsing (strip comments, trailing commas) -----------------------
+
+# jq rejects comments and awk cannot track string literals across lines, so a
+# 4-line python3 pre-stripper stays; jq remains the parser (existing dep).
+jsonc_parse() {
+  local path="$1"
+  if have jq; then
+    python3 -c '
+import sys, re
+t = open(sys.argv[1]).read()
+t = re.sub(r"\"(?:\\.|[^\"\\])*\"|//[^\n]*|/\*.*?\*/", lambda m: m.group(0) if m.group(0)[:1] == "\"" else "", t, flags=re.S)
+print(re.sub(r"\"(?:\\.|[^\"\\])*\"|,(\s*[}\]])", lambda m: m.group(0) if m.group(1) is None else m.group(1), t))
+' "$path" | jq . 2>/dev/null || cat "$path"
+  else
+    cat "$path"
+  fi
+}

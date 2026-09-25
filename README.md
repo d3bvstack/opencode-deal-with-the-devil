@@ -14,7 +14,7 @@ Actual inventory (`find .opencode -type f | grep -v node_modules | sort`): 102 f
 - Agents: 13 (`agents/*.md`)
 - Commands: 8 (`commands/*.md`) + 7 workflows (`commands/workflow/*.md`)
 - Skills: 3 (`skills/*/SKILL.md`)
-- Tools: 9 `.sh` scripts + `lib/common.sh`
+- Tools: 10 `.sh` scripts + `lib/common.sh`
 - Config: `opencode.jsonc`, `package.json` (`@opencode-ai/plugin` 1.18.32)
 - No `tests/` directory (`find . -name 'test_*.py'` → 0 results; instruction references 58 `test_*.py` files that do not exist here).
 - No `.env.example` (`.opencode/tools/preflight.sh`: `⚪ no .env.example`).
@@ -129,6 +129,7 @@ Tech-scoped (`globs`): `api-convention.md` (`**/routes/**`, `**/handlers/**`, `*
 | `dupes.sh`     | 78             | "What should I extract?" (4 repeated blocks, ×3 each)                  |
 | `quality.sh`   | 176            | "Is it up to standard?" (0 passed, 0 failed, 2 skipped)                |
 | `watch.sh`     | ~variable      | "Run without hanging" — hard + idle timeout (`exit 124` = hang)        |
+| `mcp-servers.sh` | 3058 bytes (113 loc) | "Which MCP servers are configured?" — reads `.opencode/opencode.jsonc` (`.opencode/tools/mcp-servers.sh:1-113`, `.opencode/opencode.jsonc:18-63`) |
 
 Shared library: `tools/lib/common.sh` (148 loc). Every tool is thin glue over it (`rules/library-first.md`).
 
@@ -216,6 +217,10 @@ bash .opencode/tools/codemap.sh
 
 # Watch any command (hard + idle timeout; exit 124 = hang)
 bash .opencode/tools/watch.sh --idle 60 -- make build
+
+# MCP server inventory (summary; thin glue over lib/common.sh — rules/library-first.md)
+bash .opencode/tools/mcp-servers.sh --summary
+bash .opencode/tools/mcp-servers.sh --refresh  # rebuild cache
 ```
 
 ---

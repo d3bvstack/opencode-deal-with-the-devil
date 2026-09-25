@@ -17,6 +17,7 @@ the "read-by-query" discipline (`AGENTS.md`) made executable.
 | `dupes.sh`     | "What should I extract into the library?"                                  | repeated blocks                    |
 | `quality.sh`   | "Is it the highest quality — strictly?" (the gate)                         | every strict linter / SAST / audit |
 | `watch.sh`     | "Run this without ever hanging" — hard + idle timeouts around any command  | wraps a command                    |
+| `mcp-servers.sh` | "Which MCP servers are configured?" — reads `.opencode/opencode.jsonc`     | `.opencode/opencode.jsonc`         |
 
 ## Use
 

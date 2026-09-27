@@ -35,6 +35,7 @@ DISPATCH:
    - Dirs: `dist/`, `build/`, `.next/`, `coverage/`
    - Generated: `*.generated.*`, Prisma client, GraphQL types
    - Sensitive: `.env*`, secrets, service credentials
+5. MCP_SERVERS: Inspect `.opencode/opencode.jsonc` (or `.mcp.json` / `mcp.config.*`) for configured MCP servers. Extract names, types (`local`/`remote`), commands/URLs, and enabled status. Add to scaffold and user briefing.
 
 ### PHASE 3: STRUCTURE & INVARIANT AUTHORING
 
@@ -84,6 +85,15 @@ Every agent modifying this codebase MUST complete this loop in order before decl
 3. **Lint Verification**: Run `<exact lint command>`. Correct any introduced style regressions.
 4. **Scope Audit**: Run `git status -s` to guarantee no leftover debugging artifacts, unintentional mutations, or untracked temporary files exist.
 
+## 5. Configured MCP Servers
+
+Source: `.opencode/opencode.jsonc` (or `mcp.config.*`).
+
+- <MCP name>: type=<local|remote>, enabled=<true|false>, command=<...> | url=<...>
+
+<!-- GEN:init-agents:mcp -->
+<!-- GEN:init-agents:end -->
+
 <!-- GEN:init-agents:commands -->
 <!-- GEN:init-agents:end -->
 <!-- GEN:init-agents:workflows -->
@@ -111,4 +121,5 @@ ASSERT: STDOUT matches `mk-agents.sh: refreshed GEN:init-agents blocks in .../AG
 4. USER BRIEFING: Emit summary with:
    - Toolchain and PM detected
    - Verified single-test syntax
+   - Configured MCP servers (from `.opencode/opencode.jsonc`)
    - Pending manual inputs marked `<TODO: ...>`

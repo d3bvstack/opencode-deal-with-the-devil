@@ -282,6 +282,50 @@ sec_rules() {
   [ -n "$scoped" ] && printf '%s' "$scoped" || echo '- *None registered*'
 }
 
+sec_mcp() {
+  local mcp_file="$ROOT/.opencode/opencode.jsonc"
+  echo '## Configured MCP Servers'
+  echo
+  echo 'Source: `.opencode/opencode.jsonc` (or `mcp.config.*`).'
+  echo
+  if [ -f "$mcp_file" ]; then
+    python3 -c '
+import sys, json, re
+with open(sys.argv[1], "r") as f:
+    raw = f.read()
+# Strip // comments (but not :// in URLs)
+clean = re.sub(r"(?<!:)(?<![A-Za-z0-9_\"])//.*", "", raw)
+clean = re.sub(r",(\s*[}\]])", r"\1", clean)
+try:
+    data = json.loads(clean)
+    mcps = data.get("mcp", {})
+    if not mcps:
+        print("- *No MCP servers configured*")
+    for name, cfg in mcps.items():
+        enabled = cfg.get("enabled", False)
+        mtype = cfg.get("type", "unknown")
+        cmd = cfg.get("command")
+        url = cfg.get("url")
+        if isinstance(cmd, list):
+            cmd_str = " ".join(str(c) for c in cmd)
+        else:
+            cmd_str = str(cmd) if cmd else ""
+        url_str = str(url) if url else ""
+        line = f"- `{name}`: type={mtype}, enabled={enabled}"
+        if cmd_str:
+            line += f", command=`{cmd_str}`"
+        if url_str:
+            line += f", url=`{url_str}`"
+        print(line)
+except Exception as e:
+    print(f"- *Failed to parse MCP config: {e}*")
+' "$mcp_file"
+  else
+    echo '- *No `.opencode/opencode.jsonc` found*'
+  fi
+  echo
+}
+
 sec_tools() {
   local tool ans has_entries=0
   echo '## Tools — repository inspection layer (`tools/`)'
@@ -325,6 +369,7 @@ EOF
   emit_section skills        sec_skills
   emit_section agents        sec_agents
   emit_section rules         sec_rules
+  emit_section mcp           sec_mcp
   emit_section tools         sec_tools
 }
 

@@ -1,3 +1,4 @@
+# Suppression: harness docs excluded — linked issue #HARNESS-001; reason: regenerated artifacts, not source.
 # Tool digest/gate output — regenerated on demand, fingerprinted to git state.
 cache/
 settings.local.json
